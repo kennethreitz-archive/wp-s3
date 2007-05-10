@@ -13,6 +13,13 @@ class TanTanWordPressS3Plugin {
         $this->albums = array();
         $this->perPage = 1000;
     }
+    
+    // this should install the javascripts onto the user's s3.amazonaws.com account
+    
+    function installAjax() {
+        $js = array('S3Ajax.js');
+    }
+    
     function activate() {
         wp_redirect('plugins.php?tantanActivate=wordpress-s3');
         exit;
@@ -65,6 +72,7 @@ class TanTanWordPressS3Plugin {
     function addPhotosTab() {
         add_filter('wp_upload_tabs', array(&$this, 'wp_upload_tabs'));
         add_action('upload_files_tantan_amazons3', array(&$this, 'upload_files_tantan_amazons3'));
+        add_action('upload_files_upload', array(&$this, 'upload_files_upload'));
         add_action('admin_print_scripts', array(&$this, 'upload_tabs_scripts'));
     }
     function wp_upload_tabs ($array) {
@@ -81,6 +89,7 @@ class TanTanWordPressS3Plugin {
 	        $args = array(); // this doesn't do anything in WP 2.1.2
             $tab = array(
                 'tantan_amazons3' => array('Amazon S3', 'upload_files', array(&$this, 'tab'), $paged, $args),
+                //'tantan_amazons3_upload' => array('Upload S3', 'upload_files', array(&$this, 'upload'), $paged, $args),
                 );
             return array_merge($array, $tab);
         } else {
@@ -90,6 +99,9 @@ class TanTanWordPressS3Plugin {
 
     function upload_tabs_scripts() {
         include(dirname(__FILE__).'/admin-tab-head.html');
+    }
+    function upload_files_upload() {
+        // javascript here to inject javascript and allow the upload from to post to amazon s3 instead
     }
     function upload_files_tantan_amazons3() {
     }
