@@ -1,0 +1,138 @@
+<?php if ($error):?>
+<div id="message" class="error fade"><p><strong><?php echo $error?></strong></p></div>
+<?php elseif ($message):?>
+<div id="message" class="updated fade"><p><strong><?php echo $message?></strong></p></div>
+<?php endif;?>
+
+<style>
+fieldset.options {
+    clear:both;
+    border:1px solid #ccc;
+}
+fieldset.options legend {
+    font-family: Georgia,"Times New Roman",Times,serif;
+    font-size: 22px;
+}
+
+div.album {
+    float:left;
+    width:200px;
+    height:150px;
+    margin-right:15px;
+}
+div.album td {
+    font-size:0.9em;
+}
+div.album-hidden img {
+    opacity:0.5;
+}
+</style>
+
+
+<div class="wrap">
+<h2 id="write-post">Amazon S3 Plugin for WordPress</h2>
+<?php
+global $TanTanVersionCheck;
+if (is_object($TanTanVersionCheck)):?>
+<div style="width:200px; border:1px solid #ccc;padding:10px; float:right; margin:0 0 10px 10px;">
+<strong>Plugin Updates:</strong><br />
+<a href="plugins.php?page=tantan/version-check.php">Check for updates to this plugin &gt;</a>
+</div>
+<?php endif;?>
+
+<p>
+This plugin allows you to easily use objects stored on Amazon's S3 web service. 
+</p>
+<p><strong>Installation and Usage:</strong> Just follow the onscreen prompts to link this plugin to your Amazon S3 account. 
+Once your account is linked, you will see an "Amazon S3" tag in your edit screen. </p>
+
+<div  style="float:right;width:250px;background:#eee;padding:10px;font-size:0.9em;">
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+If you find this plugin helpful, please consider donating a few dollars to support this plugin. Thanks!
+<br /><br />
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but04.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+
+</form>
+</div>
+
+
+<p>
+This plugin is provided by <a href="http://www.tantannoodles.com">TanTanNoodles</a> 
+and licensed free of charge for you to use under the GPL.
+This plugin is <em>unsupported</em> and comes with no official technical support. 
+</p>
+<p>
+You can check the following pages for the latest updates to this plugin, along with any unofficial technical support:<br />
+<br />
+<strong>Release Page:</strong> <a href="http://tantannoodles.com/toolkit/wordpress-s3/">tantannoodles.com/toolkit/wordpress-s3/</a><br />
+<strong>Project Page:</strong> <a href="http://code.google.com/p/wordpress-s3/">code.google.com/p/wordpress-s3/</a><br />
+<strong>Support Group:</strong> none yet<br />
+</p>
+<p>
+<strong>RSS Updates:</strong> Subscribe to the <a href="http://feeds.feedburner.com/TanTanToolkit">TanTanToolkit feed</a> and get notified when there's an update to this plugin.
+</p>
+
+
+
+
+<fieldset class="options">
+<legend>Amazon S3 Settings</legend>
+
+<table width="100%" cellspacing="2" cellpadding="5" class="editform"> 
+<form method="post">
+<input type="hidden" name="action" value="save" />
+<tr valign="top">
+<th width="33%" scope="row">AWS Access Key ID:</th> 
+<td><input type="text" name="options[key]" value="<?php echo $options['key'];?>" size="50" /></td> 
+</tr>
+<tr valign="top">
+<th width="33%" scope="row">Secret Key:</th> 
+<td><input type="text" name="options[secret]" value="<?php echo $options['secret'];?>" size="50" /></td> 
+</tr>
+<?php if (!$buckets):?>
+<tr valign="top">
+<td colspan="2">
+<p class="submit">
+<input type="submit" value="Authenticate Account &gt;" />
+</p>
+</td>
+</tr>
+<?php else:?>
+<tr valign="top">
+<th width="33%" scope="row">Use this bucket:</th> 
+<td>
+<select name="options[bucket]" size="1">
+<option value="">Please select a bucket...</option>
+<?php if (is_array($buckets)) foreach ($buckets as $bucket):?>
+    <option value="<?php echo $bucket->Name?>" <?php echo ($bucket->Name == $options['bucket'] ? 'selected="selected"' : '')?>>&nbsp; &nbsp; <?php echo $bucket->Name?></option>
+<?php endforeach;?>
+</select>
+</td> 
+</tr>
+
+<tr>
+<td colspan="2">
+<p class="submit">
+<input type="submit" value="Save &gt;" />
+</p>
+</td>
+</tr>
+<?php endif;?>
+
+
+</form>
+
+</table>
+
+
+
+</fieldset>
+
+
+
+
+
+
+</div>
