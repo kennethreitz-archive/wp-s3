@@ -251,7 +251,7 @@ S3Ajax = {
         }
 
         // Perform the HTTP request.
-        var req = getXMLHttpRequest();alert('test');
+        var req = getXMLHttpRequest();
         req.open(kwArgs.method, url, true);
         for (var k in hdrs) req.setRequestHeader(k, hdrs[k]);
         req.onreadystatechange = function() {
