@@ -8,7 +8,7 @@ function print_keys($keys, $level=0) {
         echo "</li>\n";
     }
     
-    foreach ($keys['_objects'] as $obj) {
+    if (is_array($keys['_objects'])) foreach ($keys['_objects'] as $obj) {
         echo '<li class="level-'.$level.'"><a href="'.$keys['_path'].$obj.'">'.$obj."</a></li>\n";
     }
     echo "</ul>\n";
@@ -22,5 +22,10 @@ function print_keys($keys, $level=0) {
 }
 </style>
 <div>
+<ul>
+<?php if (is_array($prefixes)) foreach ($prefixes as $prefix):?>
+<li><?php echo $prefix;?></li>
+<?php endforeach;?>
+</ul>
 <?php print_keys($keys); ?>
 </div>

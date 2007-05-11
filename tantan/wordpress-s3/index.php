@@ -1,4 +1,10 @@
+<form method="put">
+<xmp><?php print_r($_SERVER);?></xmp>
+<input type="submit" />
+</form>
+
 <?php
+exit;
 require("s3.php");
 
 //Account Identifiers

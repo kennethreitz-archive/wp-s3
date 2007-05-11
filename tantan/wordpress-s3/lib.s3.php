@@ -88,11 +88,16 @@ class TanTanS3 {
 		$this->responseString = $req->getResponseBody();
 		$this->parsed_xml = simplexml_load_string($this->responseString);
 		if($this->responseCode == 200){
-		    $return = array();
-		    foreach ($this->parsed_xml->Contents as $content) {
-		        $return[] = $content;
+		    $keys = array();
+		    $prefixes = array();
+		    if ($this->parsed_xml->Contents) foreach ($this->parsed_xml->Contents as $content) {
+		        $keys[] = $content;
 		    }
-			return $return;
+		    if ($this->parsed_xml->CommonPrefixes) foreach ($this->parsed_xml->CommonPrefixes as $content) {
+		        $prefixes[] = (string) $content->Prefix;
+		    }
+		    
+			return array('keys' => $keys, 'prefixes' => $prefixes);
 		} else {
 			return false;
 		}
