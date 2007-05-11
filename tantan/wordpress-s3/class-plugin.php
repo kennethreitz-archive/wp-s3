@@ -115,7 +115,12 @@ class TanTanWordPressS3Plugin {
         
         require_once(dirname(__FILE__).'/lib.s3.php');
         $s3 = new TanTanS3($this->options['key'], $this->options['secret']);
-        $keys = $s3->listKeys($this->options['bucket']);
+        $keysList = $s3->listKeys($this->options['bucket']);
+        $keys = array();
+        foreach ($keysList as $key) {
+            $path = explode('/', $key->Key);
+            $keys = $this->mapKey($keys, $path);
+        }
         include(dirname(__FILE__).'/admin-tab.html');
     }
     
@@ -125,5 +130,22 @@ class TanTanWordPressS3Plugin {
     	return $message;
     }
 
+    // turns array('a', 'b', 'c') into $array['a']['b']['c']
+    function mapKey($keys, $path) {
+        $k =& $keys;
+        $size = count($path) - 1;
+        $workingPath = '/';
+        foreach ($path as $i => $p) {
+            if ($i === $size) {
+                $k['_size'] = isset($k['_size']) ? $k['_size'] + 1 : 1;
+                $k['_path'] = $workingPath;
+                $k['_objects'][$k['_size']] = $p;
+            } else {
+                $k =& $k[$p]; // traverse the tree
+                $workingPath .= $p . '/';
+            }
+        }
+        return $keys;
+    }
 }
 ?>
