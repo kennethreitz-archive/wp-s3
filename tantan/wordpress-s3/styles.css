@@ -1,0 +1,58 @@
+.path {
+    padding:5px 0 0 0;
+    margin:0 0 5px 0;
+    font-size:0.9em;
+    background:#eee;
+}
+.path a {
+    border:0;
+    color:black;
+    text-decoration:none;
+}
+.path a:hover {
+    text-decoration:underline;
+}
+.folders ul {
+    list-style:none;
+    margin:0;
+    padding:0;
+    
+}
+.folders li {
+    float:left;
+    background:url(folder.gif) no-repeat;
+    padding:0 0 0 20px;
+    margin-right:10px;
+    font-size:0.9em;
+    
+}
+.folders li a {
+    color:#555;
+    border:0;
+    text-decoration:none;
+}
+.folders li a:hover {
+    background:#eee;
+}
+
+.files {
+    clear:both;
+}
+.files ul {
+    list-style:none;
+    margin:0;
+    padding:0;
+}
+.files ul li {
+    float:left;
+    width:30%;
+    font-size:0.9em;
+}
+.files ul li a {
+    border:0;
+    text-decoration:underline;
+    
+}
+.files ul li a:hover {
+    background:#eee;
+}

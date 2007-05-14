@@ -112,11 +112,16 @@ class TanTanWordPressS3Plugin {
         if (!$this->options['key'] || !$this->options['secret']) {
             return;
         }
+        $bucket = $this->options['bucket'];
         
         require_once(dirname(__FILE__).'/lib.s3.php');
         $s3 = new TanTanS3($this->options['key'], $this->options['secret']);
-        $ret = $s3->listKeys($this->options['bucket'], false, urlencode('s3/'), '/');//, false, 's3/', '/');
-        print_r($ret);
+        
+        $prefix = $_GET['prefix'] ? $_GET['prefix'] : '';
+        //echo urlencode($prefix);
+        
+        $ret = $s3->listKeys($bucket, false, urlencode($prefix), '/');//, false, 's3/', '/');
+        //print_r($ret);
         $keysList = $ret['keys'];
         $prefixes = $ret['prefixes'];
         //print_r($keysList);

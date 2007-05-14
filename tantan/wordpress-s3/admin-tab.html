@@ -2,9 +2,9 @@
 function print_keys($keys, $level=0) {
     echo "<ul class='level-$level'>\n";
     foreach ($keys as $key => $obj) if ($key{0} != '_') {
-        echo '<li class="level-'.$level.'">'.$key."\n";
+        echo '<li class="level-'.$level.'"><div class="prefix">'.$key."</div>\n";
         
-        print_keys($obj, $level++);
+        print_keys($obj, $level+1);
         echo "</li>\n";
     }
     
@@ -16,16 +16,33 @@ function print_keys($keys, $level=0) {
 }
 
 ?>
-<style>
-#upload-content {
-    padding-top:10px;
+<div class="path">
+Path:
+<?php 
+$tree = $keys;
+echo '<a href="'.add_query_arg('prefix', urlencode(''), $_SERVER['REQUEST_URI']).'">home</a> / ';
+$path = '';
+while (!$tree['_objects'] && $i++ < 1000) {
+    $name = key($tree);
+    $path .= $name .'/';
+    echo '<a href="'.add_query_arg('prefix', urlencode($path), $_SERVER['REQUEST_URI']).'">'.$name.'</a> / ';
+    $tree = array_pop($tree);
 }
-</style>
-<div>
+
+?>
+</div>
+<div class="folders">
 <ul>
 <?php if (is_array($prefixes)) foreach ($prefixes as $prefix):?>
-<li><?php echo $prefix;?></li>
+<li><a href="<?php echo add_query_arg('prefix', urlencode($prefix), $_SERVER['REQUEST_URI']);?>"><?php echo ereg_replace("^$path", "", $prefix);?></a></li>
 <?php endforeach;?>
 </ul>
-<?php print_keys($keys); ?>
 </div>
+<div class="files">
+<ul>
+<?php foreach ($tree['_objects'] as $file): ?>
+<li><a href="<?php echo 'http://'.$bucket.'.s3.amazonaws.com'.$tree['_path'].$file?>"><?php echo $file;?></a></li>
+<?php endforeach;?>
+</ul>
+</div>
+<br clear="both" />
