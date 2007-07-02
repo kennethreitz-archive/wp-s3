@@ -88,16 +88,7 @@ class TanTanS3 {
 		$this->responseString = $req->getResponseBody();
 		$this->parsed_xml = simplexml_load_string($this->responseString);
 		if($this->responseCode == 200){
-		    $keys = array();
-		    $prefixes = array();
-		    if ($this->parsed_xml->Contents) foreach ($this->parsed_xml->Contents as $content) {
-		        $keys[] = $content;
-		    }
-		    if ($this->parsed_xml->CommonPrefixes) foreach ($this->parsed_xml->CommonPrefixes as $content) {
-		        $prefixes[] = (string) $content->Prefix;
-		    }
-		    
-			return array('keys' => $keys, 'prefixes' => $prefixes);
+		    return true;
 		} else {
 			return false;
 		}
@@ -129,7 +120,33 @@ class TanTanS3 {
 		}
 	}
 	
-
+	/**
+	 * getObjectACL -- gets an objects access control policy.
+	 *
+	 * Takes ($bucket, $key)  
+	 *
+	 * - [str] $bucket
+	 * - [str] $key
+	*/   
+	function getObjectACL($bucket, $key){
+		$httpDate = gmdate("D, d M Y G:i:s T");
+		$resource = $bucket."/".urlencode($key);
+		$stringToSign = "GET\n\n\n$httpDate\n/$resource?acl";
+		$signature = $this->constructSig($stringToSign);
+		$req =& new HTTP_Request($this->serviceUrl.$resource.'?acl');
+		$req->setMethod("GET");
+		$req->addHeader("Date", $httpDate);
+		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		$req->sendRequest();
+		$this->responseCode = $req->getResponseCode();
+		$this->responseString = $req->getResponseBody();
+		$this->parsed_xml = simplexml_load_string($this->responseString);
+		if ($this->responseCode == 200) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	
 	/**
@@ -179,9 +196,9 @@ class TanTanS3 {
 		$this->responseCode = $req->getResponseCode();
 		$this->headers = $req->getResponseHeader();
 		if ($this->responseCode == 200) {
-			return true;
+			return $this->headers;
 		} else {
-			return false;
+			return array();
 		}
 	}
 	

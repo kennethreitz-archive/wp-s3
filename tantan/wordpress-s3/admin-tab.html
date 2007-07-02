@@ -16,33 +16,48 @@ function print_keys($keys, $level=0) {
 }
 
 ?>
+<div id="amazon-s3-wrap">
 <div class="path">
 Path:
 <?php 
 $tree = $keys;
 echo '<a href="'.add_query_arg('prefix', urlencode(''), $_SERVER['REQUEST_URI']).'">home</a> / ';
-$path = '';
+$path = '/';
+foreach (explode('/', $prefix, 100) as $name) if ($name) {
+    $path .= $name .'/';
+    echo '<a href="'.add_query_arg('prefix', urlencode($path), $_SERVER['REQUEST_URI']).'">'.$name.'</a> / ';
+}
+/*
 while (!$tree['_objects'] && $i++ < 1000) {
     $name = key($tree);
     $path .= $name .'/';
     echo '<a href="'.add_query_arg('prefix', urlencode($path), $_SERVER['REQUEST_URI']).'">'.$name.'</a> / ';
     $tree = array_pop($tree);
-}
+}*/
 
 ?>
 </div>
 <div class="folders">
 <ul>
-<?php if (is_array($prefixes)) foreach ($prefixes as $prefix):?>
-<li><a href="<?php echo add_query_arg('prefix', urlencode($prefix), $_SERVER['REQUEST_URI']);?>"><?php echo ereg_replace("^$path", "", $prefix);?></a></li>
+<?php if (is_array($prefixes)) foreach ($prefixes as $prefix):
+$label = substr($prefix, strrpos(trim($prefix, '/'), '/')+1);
+$label = ereg_replace($path, "", '/'.$prefix);
+$label = trim($prefix, '/');
+if (ereg('/', $label)) $label = substr($label, strrpos($label, '/')+1);
+?>
+<li><a href="<?php echo add_query_arg('prefix', urlencode($prefix), $_SERVER['REQUEST_URI']);?>"><?php echo $label;?></a></li>
 <?php endforeach;?>
 </ul>
 </div>
 <div class="files">
 <ul>
-<?php foreach ($tree['_objects'] as $file): ?>
-<li><a href="<?php echo 'http://'.$bucket.'.s3.amazonaws.com'.$tree['_path'].$file?>"><?php echo $file;?></a></li>
+<?php if (is_array($keys)) foreach ($keys as $i => $file): $file = '/'.$file; ?>
+<li>
+<a href="<?php echo 'http://'.$bucket.'.s3.amazonaws.com'.$file?>" class="file <?php echo ereg_replace('/', ' ', $meta[$i]['content-type']);?>" 
+    title="<?php echo $meta[$i]['date'];?> - <?php echo $meta[$i]['content-length'];?> bytes"><?php echo substr($file, strrpos($file, '/')+1);?></a>
+</li>
 <?php endforeach;?>
 </ul>
+</div>
 </div>
 <br clear="both" />

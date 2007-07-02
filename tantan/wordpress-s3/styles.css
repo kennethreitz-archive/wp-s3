@@ -1,5 +1,7 @@
+#amazon-s3-wrap {
+    padding:5px;
+}
 .path {
-    padding:5px 0 0 0;
     margin:0 0 5px 0;
     font-size:0.9em;
     background:#eee;
@@ -20,8 +22,6 @@
 }
 .folders li {
     float:left;
-    background:url(folder.gif) no-repeat;
-    padding:0 0 0 20px;
     margin-right:10px;
     font-size:0.9em;
     
@@ -30,9 +30,11 @@
     color:#555;
     border:0;
     text-decoration:none;
+    background:url(folder.gif) no-repeat;
+    padding:0 0 0 20px;
 }
 .folders li a:hover {
-    background:#eee;
+    background-color:#eee;
 }
 
 .files {
@@ -45,8 +47,8 @@
 }
 .files ul li {
     float:left;
-    width:30%;
     font-size:0.9em;
+    margin-right:15px;
 }
 .files ul li a {
     border:0;

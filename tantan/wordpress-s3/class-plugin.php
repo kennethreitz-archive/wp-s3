@@ -1,6 +1,7 @@
 <?php
 class TanTanWordPressS3Plugin {
     var $options;
+    var $s3;
     
     function TanTanWordPressS3Plugin() {
         add_action('admin_menu', array(&$this, 'addhooks'));
@@ -12,6 +13,8 @@ class TanTanWordPressS3Plugin {
         $this->photos = array();
         $this->albums = array();
         $this->perPage = 1000;
+
+
     }
     
     // this should install the javascripts onto the user's s3.amazonaws.com account
@@ -84,6 +87,8 @@ class TanTanWordPressS3Plugin {
         4 => add_query_args
 	*/
         $this->options = get_option('tantan_wordpress_s3');
+        require_once(dirname(__FILE__).'/lib.s3.php');
+        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
         if ($this->options['key'] && $this->options['secret'] && $this->options['bucket']) {
             $paged = array();
 	        $args = array(); // this doesn't do anything in WP 2.1.2
@@ -114,22 +119,17 @@ class TanTanWordPressS3Plugin {
         }
         $bucket = $this->options['bucket'];
         
-        require_once(dirname(__FILE__).'/lib.s3.php');
-        $s3 = new TanTanS3($this->options['key'], $this->options['secret']);
         
         $prefix = $_GET['prefix'] ? $_GET['prefix'] : '';
         //echo urlencode($prefix);
         
-        $ret = $s3->listKeys($bucket, false, urlencode($prefix), '/');//, false, 's3/', '/');
-        //print_r($ret);
-        $keysList = $ret['keys'];
-        $prefixes = $ret['prefixes'];
-        //print_r($keysList);
-        $keys = array();
-        if (is_array($keysList)) foreach ($keysList as $key) {
-            $path = explode('/', $key->Key);
-            $keys = $this->mapKey($keys, $path);
-        }
+        list($prefixes, $keys, $meta) = $this->getKeys($prefix);
+        //$ret = $s3->listKeys($bucket, false, urlencode($prefix), '/');//, false, 's3/', '/');
+        //if (is_array($keys)) foreach ($keys as $key) {
+            //$path = explode('/', $key);
+            //$keys = $this->mapKey($keys, $path);
+        //}
+        //print_r($keys);
         include(dirname(__FILE__).'/admin-tab.html');
     }
     
@@ -155,6 +155,49 @@ class TanTanWordPressS3Plugin {
             }
         }
         return $keys;
+    }
+    
+    function getKeys($prefix) {
+        $ret = $this->s3->listKeys($this->options['bucket'], false, urlencode($prefix), '/');//, false, 's3/', '/');
+
+        if ($this->s3->responseCode >= 400) {
+            return array();
+        }
+        $keys = array();
+	    $prefixes = array();
+	    $meta = array();
+	    if ($this->s3->parsed_xml->CommonPrefixes) foreach ($this->s3->parsed_xml->CommonPrefixes as $content) {
+	        $prefixes[] = (string) $content->Prefix;
+	    }
+
+	    if ($this->s3->parsed_xml->Contents) foreach ($this->s3->parsed_xml->Contents as $content) {
+	        $key = (string) $content->Key;
+	        
+	        if ($this->isPublic($key)) $keys[] = $key;
+	    }
+	    foreach ($keys as $key) {
+	        $meta[] = $this->s3->getMetadata($this->options['bucket'], $key);
+	    }
+	    
+	    //print_r($prefixes);
+	    //print_r($keys);
+	    //print_r($meta);
+		return array($prefixes, $keys, $meta);
+    }
+    
+    function isPublic($key) {
+        $everyone = 'http://acs.amazonaws.com/groups/global/AllUsers';
+        $this->s3->getObjectACL($this->options['bucket'], $key);
+        $acl = (array) $this->s3->parsed_xml->AccessControlList;
+        if (is_array($acl['Grant'])) foreach ($acl['Grant'] as $grant) {
+            $grant = (array) $grant;
+            if ($grant['Grantee'] && (ereg('AllUsers', (string) $grant['Grantee']->URI))) {
+                $perm = (string) $grant['Permission'];
+                if ($perm == 'READ' || $perm == 'FULL_CONTROL') return true;
+            }
+        }
+
+        
     }
 }
 ?>
