@@ -16,7 +16,14 @@ function print_keys($keys, $level=0) {
 }
 
 ?>
+
 <div id="amazon-s3-wrap">
+<?php if (true || $_SERVER['HTTP_REFERER']):?>
+<a href="#" onclick="history.back()" id="btn-back">back</a>
+<a href="#" onclick="history.forward()" id="btn-forward">forward</a>
+<?php endif; ?>
+<a href="#" onclick="window.location.reload()" id="btn-refresh">refresh</a>
+
 <div class="path">
 Path:
 <?php 
@@ -51,10 +58,20 @@ if (ereg('/', $label)) $label = substr($label, strrpos($label, '/')+1);
 </div>
 <div class="files">
 <ul>
-<?php if (is_array($keys)) foreach ($keys as $i => $file): $file = '/'.$file; ?>
-<li>
-<a href="<?php echo 'http://'.$bucket.'.s3.amazonaws.com'.$file?>" class="file <?php echo ereg_replace('/', ' ', $meta[$i]['content-type']);?>" 
-    title="<?php echo $meta[$i]['date'];?> - <?php echo $meta[$i]['content-length'];?> bytes"><?php echo substr($file, strrpos($file, '/')+1);?></a>
+<?php if (is_array($keys)) foreach ($keys as $i => $file): 
+    $file = '/'.$file;
+    $url = 'http://'.$bucket.'.s3.amazonaws.com'.$file;
+    $label = substr($file, strrpos($file, '/')+1);
+?>
+<li><a 
+<?php if (ereg("^image/.*", $meta[$i]['content-type'])):?>
+onclick="return s3_insertImage('<?php echo $url;?>')"
+<?php else:?>
+onclick="return s3_insertLink('<?php echo addslashes($label);?>', '<?php echo $url;?>')"
+<?php endif;?>
+href="<?php echo $url;?>" 
+class="file <?php echo ereg_replace('/', ' ', $meta[$i]['content-type']);?>" 
+title="<?php echo $meta[$i]['date'];?> - <?php echo $meta[$i]['content-length'];?> bytes"><?php echo $label;?></a>
 </li>
 <?php endforeach;?>
 </ul>
