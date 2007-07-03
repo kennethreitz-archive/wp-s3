@@ -35,23 +35,17 @@ http://code.google.com/p/wordpress-s3/wiki/ChangeLog
 
 */
 // s3 lib requires php5
-if (version_compare(phpversion(), '5.0', '>=') && version_compare(get_bloginfo('version'), '2.1', '>=')) {
-    if (strpos($_SERVER['REQUEST_URI'], '/wp-admin/') >= 0) { // just load in admin
-        require(dirname(__FILE__).'/wordpress-s3/class-plugin.php');
+if (strpos($_SERVER['REQUEST_URI'], '/wp-admin/') >= 0) { // just load in admin
+    if (version_compare(phpversion(), '5.0', '>=') && version_compare(get_bloginfo('version'), '2.1', '>=')) {
+        require_once(dirname(__FILE__).'/wordpress-s3/class-plugin.php');
         $TanTanWordPressS3Plugin = new TanTanWordPressS3Plugin();
+    } else {
+        class TanTanWordPressS3Error {
+        function TanTanWordPressS3Error() {add_action('admin_menu', array(&$this, 'addhooks'));}
+        function addhooks() {add_options_page('Amazon S3', 'Amazon S3', 10, __FILE__, array(&$this, 'admin'));}
+        function admin(){include(dirname(__FILE__).'/wordpress-s3/admin-version-error.html');}
+        }
+        $error = new TanTanWordPressS3Error();
     }
-} else {
-    class TanTanWordPressS3Error {
-        function TanTanWordPressS3Error() {
-            add_action('admin_menu', array(&$this, 'addhooks'));
-        }
-        function addhooks() {
-            add_options_page('Amazon S3', 'Amazon S3', 10, __FILE__, array(&$this, 'admin'));
-        }
-        function admin() {
-            include(dirname(__FILE__).'/wordpress-s3/admin-version-error.html');
-        }
-    }
-    $error = new TanTanWordPressS3Error();
 }
 ?>
