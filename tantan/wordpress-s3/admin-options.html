@@ -109,7 +109,7 @@ You can check the following pages for the latest updates to this plugin, along w
     <option value="<?php echo $bucket->Name?>" <?php echo ($bucket->Name == $options['bucket'] ? 'selected="selected"' : '')?>>&nbsp; &nbsp; <?php echo $bucket->Name?></option>
 <?php endforeach;?>
 </select><br />
-<input type="checkbox" name="options[virtual-host]" value="1" id="virtual-host" <?php echo ($options['virtual-host'] ? 'checked="checked" ' : '');?> /><label for="virtual-host"> Bucket is a virtually hosted</label> (<a href="http://docs.amazonwebservices.com/AmazonS3/2006-03-01/VirtualHosting.html">more info</a>)
+<input type="checkbox" name="options[virtual-host]" value="1" id="virtual-host" <?php echo ($options['virtual-host'] ? 'checked="checked" ' : '');?> /><label for="virtual-host"> Bucket is a virtually hosted domain</label> (<a href="http://docs.amazonwebservices.com/AmazonS3/2006-03-01/VirtualHosting.html">more info</a>)
 </td> 
 </tr>
 

@@ -19,17 +19,15 @@ function stream_function($handle, $fd, $length){return fread($this->data, $lengt
 */
 
 
-/*
-    based on code provided by Amazon
-*/
 //require_once (dirname(__FILE__).'/../lib/HMAC.php');
 
-// grab this with "pear install --onlyreqdeps HTTP_Request"
-//require_once 'Request.php';
 //require_once (dirname(__FILE__).'/../lib/curl.php');
 require_once(dirname(__FILE__).'/../lib/Request.php');
 
 
+/*
+    based on code provided by Amazon
+*/
 class TanTanS3 {
 
 	var $serviceUrl;
