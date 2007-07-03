@@ -128,15 +128,8 @@ class TanTanWordPressS3Plugin {
         $accessDomain = $this->options['virtual-host'] ? $this->options['bucket'] : $this->options['bucket'].'.s3.amazonaws.com';
         
         $prefix = $_GET['prefix'] ? $_GET['prefix'] : '';
-        //echo urlencode($prefix);
         
         list($prefixes, $keys, $meta) = $this->getKeys($prefix);
-        //$ret = $s3->listKeys($bucket, false, urlencode($prefix), '/');//, false, 's3/', '/');
-        //if (is_array($keys)) foreach ($keys as $key) {
-            //$path = explode('/', $key);
-            //$keys = $this->mapKey($keys, $path);
-        //}
-        //print_r($keys);
         include(dirname(__FILE__).'/admin-tab.html');
     }
     
@@ -164,6 +157,7 @@ class TanTanWordPressS3Plugin {
         return $keys;
     }
     
+    // should probably figgure out a way to cache these results to make things more speedy
     function getKeys($prefix) {
         $ret = $this->s3->listKeys($this->options['bucket'], false, urlencode($prefix), '/');//, false, 's3/', '/');
         
