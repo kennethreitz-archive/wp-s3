@@ -1,8 +1,28 @@
 <?php
 /*
+Calculates RFC 2104 compliant HMACs.
+Based on code from  http://pear.php.net/package/Crypt_HMAC
+*/   
+class TanTanCrypt_HMAC {
+var $_func;var $_ipad;var $_opad;var $_pack;
+function TanTanCrypt_HMAC($key, $func = 'md5'){$this->setFunction($func);$this->setKey($key);}
+function setFunction($func){if (!$this->_pack = $this->_getPackFormat($func)) { die('Unsupported hash function'); }$this->_func = $func;}
+function setKey($key){$func = $this->_func;if (strlen($key) > 64) {$key =  pack($this->_pack, $func($key));}if (strlen($key) < 64) {$key = str_pad($key, 64, chr(0));}$this->_ipad = (substr($key, 0, 64) ^ str_repeat(chr(0x36), 64));$this->_opad = (substr($key, 0, 64) ^ str_repeat(chr(0x5C), 64));}
+function _getPackFormat($func){$packs = array('md5' => 'H32', 'sha1' => 'H40');return isset($packs[$func]) ? $packs[$func] : false;}
+function hash($data){$func = $this->_func;return $func($this->_opad . pack($this->_pack, $func($this->_ipad . $data)));}
+}
+/*
+class Stream{
+var $data;
+function stream_function($handle, $fd, $length){return fread($this->data, $length);}
+}
+*/
+
+
+/*
     based on code provided by Amazon
 */
-require_once (dirname(__FILE__).'/../lib/HMAC.php');
+//require_once (dirname(__FILE__).'/../lib/HMAC.php');
 
 // grab this with "pear install --onlyreqdeps HTTP_Request"
 //require_once 'Request.php';
@@ -210,6 +230,7 @@ class TanTanS3 {
 	 * - [str] $bucket
 	 * - [str] $key
 	*/   
+	/*
 	function getObjectAsString($bucket, $key) {
 		$httpDate = gmdate("D, d M Y G:i:s T");
 		$resource = $bucket."/".urlencode($key);
@@ -229,7 +250,7 @@ class TanTanS3 {
 			return false;
 		}
 	}
-	
+	*/
 	/**
 	 * queryStringGet -- returns a signed URL to get object
 	 *
@@ -239,6 +260,7 @@ class TanTanS3 {
 	 * - [str] $key
 	 * - [str] $expires - signed URL with expire after $expires seconds
 	*/   
+	/*
 	function queryStringGet($bucket, $key, $expires){
 		$expires = time() + $expires;
 		$resource = $bucket."/".urlencode($key);
@@ -247,7 +269,7 @@ class TanTanS3 {
 		$queryString = "<a href='http://s3.amazonaws.com/$resource?AWSAccessKeyId=$this->accessKeyId&Expires=$expires&Signature=$signature'>$bucket/$key</a>";
 		return $queryString;         
 	}
-	
+	*/
 	function hex2b64($str) {
 		$raw = '';
 		for ($i=0; $i < strlen($str); $i+=2) {
@@ -257,19 +279,9 @@ class TanTanS3 {
 	}
 		 
 	function constructSig($str) {
-		$hasher =& new Crypt_HMAC($this->secretKey, "sha1");
+		$hasher =& new TanTanCrypt_HMAC($this->secretKey, "sha1");
 		$signature = $this->hex2b64($hasher->hash($str));
 		return($signature);
 	}
 }
-
-class Stream{
-  var $data;
-  function stream_function($handle, $fd, $length){
-    return fread($this->data, $length);
-  }
-}
-    
-
-
 ?>
