@@ -34,7 +34,7 @@ Changlog:
 http://code.google.com/p/wordpress-s3/wiki/ChangeLog
 
 */
-
+// s3 lib requires php5
 if (version_compare(phpversion(), '5.0', '>=') && version_compare(get_bloginfo('version'), '2.1', '>=')) {
     if (strpos($_SERVER['REQUEST_URI'], '/wp-admin/') >= 0) { // just load in admin
         require(dirname(__FILE__).'/wordpress-s3/class-plugin.php');

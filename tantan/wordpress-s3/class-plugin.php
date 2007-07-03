@@ -86,12 +86,14 @@ class TanTanWordPressS3Plugin {
         3 => total number objects OR array(total, objects per page), 
         4 => add_query_args
 	*/
-        $this->options = get_option('tantan_wordpress_s3');
+        if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
         require_once(dirname(__FILE__).'/lib.s3.php');
         $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
+        
+
         if ($this->options['key'] && $this->options['secret'] && $this->options['bucket']) {
             $paged = array();
-	        $args = array(); // this doesn't do anything in WP 2.1.2
+	        $args = array('prefix' => ''); // this doesn't do anything in WP 2.1.2
             $tab = array(
                 'tantan_amazons3' => array('Amazon S3', 'upload_files', array(&$this, 'tab'), $paged, $args),
                 //'tantan_amazons3_upload' => array('Upload S3', 'upload_files', array(&$this, 'upload'), $paged, $args),
@@ -103,6 +105,11 @@ class TanTanWordPressS3Plugin {
     }
 
     function upload_tabs_scripts() {
+        //wp_enqueue_script('prototype');
+        if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
+
+        $accessDomain = $this->options['virtual-host'] ? $this->options['bucket'] : $this->options['bucket'].'.s3.amazonaws.com';
+        
         include(dirname(__FILE__).'/admin-tab-head.html');
     }
     function upload_files_upload() {
@@ -118,7 +125,7 @@ class TanTanWordPressS3Plugin {
             return;
         }
         $bucket = $this->options['bucket'];
-        
+        $accessDomain = $this->options['virtual-host'] ? $this->options['bucket'] : $this->options['bucket'].'.s3.amazonaws.com';
         
         $prefix = $_GET['prefix'] ? $_GET['prefix'] : '';
         //echo urlencode($prefix);
@@ -159,7 +166,7 @@ class TanTanWordPressS3Plugin {
     
     function getKeys($prefix) {
         $ret = $this->s3->listKeys($this->options['bucket'], false, urlencode($prefix), '/');//, false, 's3/', '/');
-
+        
         if ($this->s3->responseCode >= 400) {
             return array();
         }

@@ -1,3 +1,10 @@
+<?php
+/*
+<script type="text/javascript" src="../wp-content/plugins/tantan/wordpress-s3/js/sha1.js"></script>
+<script type="text/javascript" src="http://<?php echo $accessDomain;?>/tantan/S3Ajax.js"></script>
+*/
+?>
+
 <script type="text/javascript">
 addLoadEvent(function () {
     var div = document.getElementById('upload-menu');
@@ -29,6 +36,62 @@ function s3_insert(h) {
 	return false;
     
 }
+<?php
+/*
+TanTanWPS3 = {
+    bucket: '<?php echo $this->options['bucket'];?>',
+    init: function() {
+        var _this = this;
+
+        S3Ajax.DEBUG = true;
+        S3Ajax.URL =        'http://<?php echo $accessDomain;?>';
+        S3Ajax.KEY_ID =     '<?php echo $this->options['key'];?>';
+        S3Ajax.SECRET_KEY = '<?php echo $this->options['secret'];?>';
+        
+        var params = {}
+        
+        this.list();
+        
+        //var keys = S3Ajax.listKeys(this.bucket, params, cb, err_cb)
+    },
+    list: function() {
+        var _this = this;
+        //setList('keys_list', ['Loading...','']);
+
+        var bucket = '<?php echo $this->options['bucket'];?>';
+
+        var params = {};
+        //if ($('list_prefix').value)  params['prefix']   = $('list_prefix').value;
+        //if ($('list_maxkeys').value) params['max-keys'] = $('list_maxkeys').value;
+        //if ($('list_marker').value)  params['marker']   = $('list_marker').value;
+
+        params['prefix'] = '';
+        
+        S3Ajax.listKeys(bucket, params, 
+            function(req, obj) {
+                //clearList();
+                var contents = obj.ListBucketResult.Contents;
+                for (var i=0, item; item=contents[i]; i++) {
+                    TanTanWPS3.addKey(
+                        item.LastModified + ' ' + item.Key + ' (' + item.Size + ')',
+                        item.Key
+                    );
+                }
+            },
+            function(req, obj) {
+                setList('keys_list', ["Keys list failed at "+(new Date()),'']);
+            }
+        );
+    },
+    addKey: function(label, key) {
+        new Insertion.Bottom('keys', '<li><a href="'+key+'">'+label+'</a></li>');
+    },
+    EOF: null
+}
+
+addLoadEvent(function(){ TanTanWPS3.init() });
+*/
+?>
 </script>
 <style type="text/css">
 @import url(../wp-content/plugins/tantan/wordpress-s3/styles/styles.css);

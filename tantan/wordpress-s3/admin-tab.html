@@ -18,49 +18,52 @@ function print_keys($keys, $level=0) {
 ?>
 
 <div id="amazon-s3-wrap">
-<?php if (true || $_SERVER['HTTP_REFERER']):?>
-<a href="#" onclick="history.back()" id="btn-back">back</a>
-<a href="#" onclick="history.forward()" id="btn-forward">forward</a>
-<?php endif; ?>
-<a href="#" onclick="window.location.reload()" id="btn-refresh">refresh</a>
 
-<div class="path">
-Path:
+<div class="infobar">
+
+<span class="nav-controls">
+<?php if (true || $_SERVER['HTTP_REFERER']):?>
+<a href="javascript:history.back()" onclick="" id="btn-back" title="back">back</a>
+<a href="javascript:history.forward()" onclick="" id="btn-forward" title="forward">forward</a>
+<?php endif; ?>
+<a href="javascript:window.location.reload()" onclick="" id="btn-refresh" title="refresh view">refresh</a>
+</span>
+<span class="path">
 <?php 
 $tree = $keys;
-echo '<a href="'.add_query_arg('prefix', urlencode(''), $_SERVER['REQUEST_URI']).'">home</a> / ';
+echo '<a href="'.add_query_arg('prefix', urlencode(''), $_SERVER['REQUEST_URI']).'" class="home">home</a> / ';
 $path = '/';
-foreach (explode('/', $prefix, 100) as $name) if ($name) {
+$paths = preg_split('/\//', $prefix, 100, PREG_SPLIT_NO_EMPTY);
+$numPaths = count($paths);
+$i=0;
+foreach ($paths as $name) if ($name) {
     $path .= $name .'/';
-    echo '<a href="'.add_query_arg('prefix', urlencode($path), $_SERVER['REQUEST_URI']).'">'.$name.'</a> / ';
+    $isLast = (++$i) >= $numPaths;
+    echo '<a class="'.( $isLast ? 'last' : '').'" href="'.add_query_arg('prefix', urlencode($path), $_SERVER['REQUEST_URI']).'">'.$name.'</a> '.(!$isLast ? ' / ' : ' ');
 }
-/*
-while (!$tree['_objects'] && $i++ < 1000) {
-    $name = key($tree);
-    $path .= $name .'/';
-    echo '<a href="'.add_query_arg('prefix', urlencode($path), $_SERVER['REQUEST_URI']).'">'.$name.'</a> / ';
-    $tree = array_pop($tree);
-}*/
-
 ?>
+</span>
 </div>
 <div class="folders">
-<ul>
-<?php if (is_array($prefixes)) foreach ($prefixes as $prefix):
+<ul id="prefixes">
+<?php 
+if (is_array($prefixes)) foreach ($prefixes as $prefix):
 $label = substr($prefix, strrpos(trim($prefix, '/'), '/')+1);
 $label = ereg_replace($path, "", '/'.$prefix);
 $label = trim($prefix, '/');
 if (ereg('/', $label)) $label = substr($label, strrpos($label, '/')+1);
 ?>
 <li><a href="<?php echo add_query_arg('prefix', urlencode($prefix), $_SERVER['REQUEST_URI']);?>"><?php echo $label;?></a></li>
-<?php endforeach;?>
+<?php 
+endforeach;
+?>
 </ul>
 </div>
 <div class="files">
-<ul>
+<ul id="keys">
 <?php if (is_array($keys)) foreach ($keys as $i => $file): 
     $file = '/'.$file;
-    $url = 'http://'.$bucket.'.s3.amazonaws.com'.$file;
+    $url = 'http://'.$accessDomain.$file;
     $label = substr($file, strrpos($file, '/')+1);
 ?>
 <li><a 
