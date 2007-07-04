@@ -31,6 +31,7 @@
     padding-left:20px;
     background:url(arrow_left.png) no-repeat 0px 0px;
     border:0;
+	color:#888;
 }
 .infobar .nav-controls a#btn-forward,
 .infobar .nav-controls a#btn-refresh {
@@ -48,7 +49,7 @@
 }
 .infobar .path,
 .infobar .path a{
-    color:#555;
+    color:#888;
 }
 .infobar .path a.last {
     font-weight:bold;
