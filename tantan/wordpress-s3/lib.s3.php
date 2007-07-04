@@ -18,11 +18,8 @@ function stream_function($handle, $fd, $length){return fread($this->data, $lengt
 }
 */
 
-
-//require_once (dirname(__FILE__).'/../lib/HMAC.php');
-
-//require_once (dirname(__FILE__).'/../lib/curl.php');
-require_once(dirname(__FILE__).'/../lib/Request.php');
+require_once (dirname(__FILE__).'/../lib/curl.php');
+//require_once(dirname(__FILE__).'/../lib/Request.php');
 
 
 /*
@@ -52,27 +49,18 @@ class TanTanS3 {
 		$this->serviceUrl=$serviceUrl;
 		$this->accessKeyId=$accessKeyId;
 		$this->secretKey=$secretKey;
-		$this->req =& new HTTP_Request($this->serviceUrl);
+		$this->req =& new TanTanCurl($this->serviceUrl);
 	}
 			
 	/**
 	 * listBuckets -- Lists all buckets.
 	*/
 	function listBuckets() {
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$stringToSign="GET\n\n\n$httpDate\n/";
-		$signature = $this->constructSig($stringToSign);
-		$req =& new HTTP_Request($this->serviceUrl);
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();
-		$this->parsed_xml = simplexml_load_string($this->responseString);
-		if($this->responseCode == 200){ 
+		$ret = $this->send('');
+		if($ret == 200){ 
 		    $return = array();
-		    foreach ($this->parsed_xml->Buckets->Bucket as $test) {
-		        $return[] = $test;
+		    foreach ($this->parsed_xml->Buckets->Bucket as $bucket) {
+		        $return[] = (string) $bucket->Name;
 		        
 		    }
 		    return $return;
@@ -94,18 +82,8 @@ class TanTanS3 {
 	 * - [str] $maxKeys: number of keys to be returned (OPTIONAL: defaults to 1000 - maximum allowed by service)
 	*/
 	function listKeys($bucket, $marker=FALSE, $prefix=FALSE, $delimiter=FALSE, $maxKeys='1000') {
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$stringToSign = "GET\n\n\n$httpDate\n/$bucket";
-		$signature = $this->constructSig($stringToSign);
-		//$req =& new HTTP_Request($this->serviceUrl.$bucket."?max-keys={$maxKeys}&marker={$marker}&prefix={$prefix}&delimiter={$delimiter}");
-		$req =& new HTTP_Request($this->serviceUrl.$bucket."?max-keys={$maxKeys}&marker={$marker}&prefix={$prefix}&delimiter={$delimiter}");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();
-		$this->parsed_xml = simplexml_load_string($this->responseString);
-		if($this->responseCode == 200){
+		$ret = $this->send($bucket, "max-keys={$maxKeys}&marker={$marker}&prefix={$prefix}&delimiter={$delimiter}");
+		if($ret == 200){
 		    return true;
 		} else {
 			return false;
@@ -120,18 +98,8 @@ class TanTanS3 {
 	 * - [str] $bucket: the bucket whose acl you want
 	*/	 
 	function getBucketACL($bucket){
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$stringToSign = "GET\n\n\n$httpDate\n/$bucket/?acl";
-		$signature = $this->constructSig($stringToSign);
-		$req =& new HTTP_Request($this->serviceUrl.$bucket.'/?acl');
-		$req->setMethod("GET");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();
-		$this->parsed_xml = simplexml_load_string($this->responseString);
-		if ($this->responseCode == 200) {
+		$ret = $this->send($bucket.'/?acl');
+		if ($ret == 200) {
 			return true;
 		} else {
 			return false;		
@@ -147,46 +115,8 @@ class TanTanS3 {
 	 * - [str] $key
 	*/   
 	function getObjectACL($bucket, $key){
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$resource = $bucket."/".urlencode($key);
-		$stringToSign = "GET\n\n\n$httpDate\n/$resource?acl";
-		$signature = $this->constructSig($stringToSign);
-		$req =& new HTTP_Request($this->serviceUrl.$resource.'?acl');
-		$req->setMethod("GET");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();
-		$this->parsed_xml = simplexml_load_string($this->responseString);
-		if ($this->responseCode == 200) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	
-	/**
-	 * getLoggingStatus -- gets a bucket's logging status (is logging enabled?).
-	 *
-	 * Takes ($bucket)  
-	 *
-	 * - [str] $bucket
-	*/   
-	function getLoggingStatus($bucket){
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$stringToSign = "GET\n\n\n$httpDate\n/$bucket?logging";
-		$signature = $this->constructSig($stringToSign);
-		$req =& new HTTP_Request($this->serviceUrl.$bucket.'?logging');
-		$req->setMethod("GET");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();
-		$this->parsed_xml = simplexml_load_string($this->responseString);
-		if ($this->responseCode == 200) {
+		$ret = $this->send($bucket."/".urlencode($key).'?acl');
+		if ($ret == 200) {
 			return true;
 		} else {
 			return false;
@@ -202,72 +132,28 @@ class TanTanS3 {
 	 * - [str] $key
 	*/   
 	function getMetadata($bucket, $key){
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$resource = $bucket."/".urlencode($key);
-		$stringToSign = "HEAD\n\n\n$httpDate\n/$resource";
-		$signature = $this->constructSig($stringToSign);
-		$req =& new HTTP_Request($this->serviceUrl.$resource);
-		$req->setMethod("HEAD");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->headers = $req->getResponseHeader();
-		if ($this->responseCode == 200) {
-			return $this->headers;
+		$ret = $this->send($bucket."/".urlencode($key), '', 'HEAD');
+		if ($ret == 200) {
+			return $this->req->getResponseHeader();
 		} else {
 			return array();
 		}
 	}
-	
-	/**
-	 * getObjectAsString -- Returns object as a string.
-	 *
-	 * Takes ($bucket, $key)  
-	 *
-	 * - [str] $bucket
-	 * - [str] $key
-	*/   
-	/*
-	function getObjectAsString($bucket, $key) {
+	function send($resource, $args='', $method='GET') {
+		$method=strtoupper($method);
 		$httpDate = gmdate("D, d M Y G:i:s T");
-		$resource = $bucket."/".urlencode($key);
-		$stringToSign = "GET\n\n\n{$httpDate}\n/$resource";
-		$signature = $this->constructSig($stringToSign);
-		$req = & new HTTP_Request($this->serviceUrl.$resource);
-		$req->setMethod("GET");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();		
-		if ($this->responseCode == 200) {
-			return true;
-		} else {
-		$this->parsed_xml = simplexml_load_string($this->responseString);		
-			return false;
+		$signature = $this->constructSig("$method\n\n\n$httpDate\n/$resource");
+		
+		$this->req->setURL($this->serviceUrl.$resource.($args ? '?'.$args : ''));
+		$this->req->setMethod($method);
+		$this->req->addHeader("Date", $httpDate);
+		$this->req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		$this->req->sendRequest();
+		if ($method=='GET') {
+			$this->parsed_xml = simplexml_load_string($this->req->getResponseBody());
 		}
+		return $this->req->getResponseCode();
 	}
-	*/
-	/**
-	 * queryStringGet -- returns a signed URL to get object
-	 *
-	 * Takes ($bucket, $key, $expires)  
-	 *
-	 * - [str] $bucket
-	 * - [str] $key
-	 * - [str] $expires - signed URL with expire after $expires seconds
-	*/   
-	/*
-	function queryStringGet($bucket, $key, $expires){
-		$expires = time() + $expires;
-		$resource = $bucket."/".urlencode($key);
-		$stringToSign = "GET\n\n\n$expires\n/$resource";
-		$signature = urlencode($this->constructSig($stringToSign));
-		$queryString = "<a href='http://s3.amazonaws.com/$resource?AWSAccessKeyId=$this->accessKeyId&Expires=$expires&Signature=$signature'>$bucket/$key</a>";
-		return $queryString;         
-	}
-	*/
 	function hex2b64($str) {
 		$raw = '';
 		for ($i=0; $i < strlen($str); $i+=2) {
