@@ -183,8 +183,9 @@ class TanTanWordPressS3Plugin {
 	        if ($this->isPublic($key)) $keys[] = $key;
 	        else $privateKeys[] = $key;
 	    }
-	    foreach ($keys as $key) {
-	        $meta[] = $this->s3->getMetadata($this->options['bucket'], $key);
+	    natcasesort($keys);
+	    foreach ($keys as $i => $key) {
+	        $meta[$i] = $this->s3->getMetadata($this->options['bucket'], $key);
 	    }
 	    
 	    //print_r($prefixes);
