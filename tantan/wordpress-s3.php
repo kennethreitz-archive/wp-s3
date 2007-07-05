@@ -2,7 +2,7 @@
 /*
 Plugin Name: Amazon S3 for WordPress
 Plugin URI: http://tantannoodles.com/toolkit/wordpress-s3/
-Description: Allows you to retrieves objects stored in Amazon S3.
+Description: Allows you to retrieves objects stored in Amazon S3 and post them in WordPress.
 Author: Joe Tan
 Version: 0.1
 Author URI: http://tantannoodles.com/
