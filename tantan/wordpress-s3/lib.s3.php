@@ -132,9 +132,15 @@ class TanTanS3 {
 	 * - [str] $key
 	*/   
 	function getMetadata($bucket, $key){
+	    if ($data = $this->getCache($bucket."/".$key)) {
+	        return $data;
+	    }
 		$ret = $this->send($bucket."/".urlencode($key), '', 'HEAD');
 		if ($ret == 200) {
-			return $this->req->getResponseHeader();
+			$data = $this->req->getResponseHeader();
+			foreach ($data as $k => $d) $data[strtolower($k)] = trim($d);
+			$this->setCache($bucket."/".$key, $data);
+			return $data;
 		} else {
 			return array();
 		}
@@ -166,6 +172,43 @@ class TanTanS3 {
 		$hasher =& new TanTanCrypt_HMAC($this->secretKey, "sha1");
 		$signature = $this->hex2b64($hasher->hash($str));
 		return($signature);
+	}
+	
+    function initCacheTables() {
+        global $wpdb;
+        if (!is_object($wpdb)) return;
+        
+        $wpdb->query("CREATE TABLE IF NOT EXISTS `tantan_wordpress_s3_cache` (
+                `request` VARCHAR( 255 ) NOT NULL ,
+                `response` TEXT NOT NULL ,
+                `timestamp` DATETIME NOT NULL ,
+                PRIMARY KEY ( `request` )
+            ) TYPE = MYISAM");	    
+	}
+	function setCache($key, $data) {
+        global $wpdb;
+        if (!is_object($wpdb)) return false;
+        $key = addslashes(trim($key));
+        $wpdb->query("DELETE FROM tantan_wordpress_s3_cache WHERE request = '".$key."'");
+        $sql = "INSERT INTO tantan_wordpress_s3_cache (request, response, timestamp) VALUES ('".$key."', '" . addslashes(serialize($data)) . "', '" . strftime("%Y-%m-%d %H:%M:%S") . "')";
+        $wpdb->query($sql); 
+        return $data;
+	}
+	function getCache($key) {
+        global $wpdb;
+        if (!is_object($wpdb)) return false;
+        $key = trim($key);
+        $result = $wpdb->get_var("SELECT response FROM tantan_wordpress_s3_cache WHERE request = '" . $key . "' LIMIT 1");
+        
+        if (!empty($result)) {
+            return unserialize($result);
+        }
+        return false;        
+	}
+	function clearCache() {
+        global $wpdb;
+        if (!is_object($wpdb)) return false;
+	    $result = $wpdb->query("DELETE FROM tantan_wordpress_s3_cache;");
 	}
 }
 ?>

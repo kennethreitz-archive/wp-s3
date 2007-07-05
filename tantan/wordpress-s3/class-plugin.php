@@ -65,11 +65,16 @@ class TanTanWordPressS3Plugin {
             if (!($buckets = $s3->listBuckets())) {
                 $error = $this->getErrorMessage($s3->parsed_xml, $s3->responseCode);
             }
+            
+            $s3->initCacheTables();
+            
         } elseif ($options['key']) {
             $error = "Please enter your Secret Access Key.";
         } elseif ($options['secret']) {
             $error = "Please enter your Access Key ID.";
         }
+        
+        
         include(dirname(__FILE__).'/admin-options.html');
     }
     function addPhotosTab() {
@@ -165,6 +170,7 @@ class TanTanWordPressS3Plugin {
             return array();
         }
         $keys = array();
+        $privateKeys = array();
 	    $prefixes = array();
 	    $meta = array();
 	    if ($this->s3->parsed_xml->CommonPrefixes) foreach ($this->s3->parsed_xml->CommonPrefixes as $content) {
@@ -175,6 +181,7 @@ class TanTanWordPressS3Plugin {
 	        $key = (string) $content->Key;
 	        
 	        if ($this->isPublic($key)) $keys[] = $key;
+	        else $privateKeys[] = $key;
 	    }
 	    foreach ($keys as $key) {
 	        $meta[] = $this->s3->getMetadata($this->options['bucket'], $key);
