@@ -176,6 +176,7 @@ class TanTanWordPressS3Plugin {
 	    if ($this->s3->parsed_xml->CommonPrefixes) foreach ($this->s3->parsed_xml->CommonPrefixes as $content) {
 	        $prefixes[] = (string) $content->Prefix;
 	    }
+	    natcasesort($prefixes);
 
 	    if ($this->s3->parsed_xml->Contents) foreach ($this->s3->parsed_xml->Contents as $content) {
 	        $key = (string) $content->Key;
