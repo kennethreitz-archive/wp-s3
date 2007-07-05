@@ -47,8 +47,14 @@ class TanTanWordPressS3Plugin {
     function admin() {
         if ($_POST['action'] == 'save') {
             if (!is_array($_POST['options'])) $_POST['options'] = array();
+            $options = get_option('tantan_wordpress_s3');
+            
             $_POST['options']['key'] = trim($_POST['options']['key']);
             $_POST['options']['secret'] = trim($_POST['options']['secret']);
+            
+            if (ereg('not shown', $_POST['options']['secret'])) {
+                $_POST['options']['secret'] = $options['secret'];
+            }
             
             update_option('tantan_wordpress_s3', $_POST['options']);
             
