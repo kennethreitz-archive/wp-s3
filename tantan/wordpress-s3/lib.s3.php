@@ -145,6 +145,81 @@ class TanTanS3 {
 			return array();
 		}
 	}
+	
+	
+    /**
+     * putObjectStream -- Streams data to a bucket.
+     *
+     * Takes ($bucket, $key, $streamFunction, $contentType, $contentLength [,$acl, $metadataArray, $md5])
+     * http://www.missiondata.com/blog/linux/49/s3-streaming-with-php/
+     *
+     * - [str] $bucket: the bucket into which file will be written
+     * - [str] $key: key of written file
+     * - [str] $streamFunction: function to call for data to stream
+     * - [str] $contentType: file content type
+     * - [str] $contentLength: file content length
+     * - [str] $acl: access control policy of file (OPTIONAL: defaults to 'private')
+     * - [str] $metadataArray: associative array containing user-defined metadata (name=>value) (OPTIONAL)
+     * - [bool] $md5: the MD5 hash of the object (OPTIONAL)
+    */
+    /*
+    function putObjectStream($bucket, $key, $streamFunction, $contentType, $contentLength, $acl, $metadataArray, $md5){
+        sort($metadataArray);
+        $resource = "$bucket/$key";
+        $resource = urlencode($resource);
+        $httpDate = gmdate("D, d M Y G:i:s T");
+
+        $curl_inst = curl_init();
+
+        curl_setopt ($curl_inst, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt ($curl_inst, CURLOPT_LOW_SPEED_LIMIT, 1);
+        curl_setopt ($curl_inst, CURLOPT_LOW_SPEED_TIME, 180);
+        curl_setopt ($curl_inst, CURLOPT_NOSIGNAL, 1);
+        curl_setopt ($curl_inst, CURLOPT_READFUNCTION, $streamFunction);
+        curl_setopt ($curl_inst, CURLOPT_URL, $this->serviceUrl . $resource);
+        curl_setopt ($curl_inst, CURLOPT_UPLOAD, true);
+        curl_setopt ($curl_inst, CURLINFO_CONTENT_LENGTH_UPLOAD, $contentLength);
+
+        $header[] = "Date: $httpDate";
+        $header[] = "Content-Type: $contentType";
+        $header[] = "Content-Length: $contentLength";
+        $header[] = "Expect: ";
+        $header[] = "Transfer-Encoding: ";
+        $header[] = "x-amz-acl: $acl";
+
+        $MD5 = "";
+        if($md5){
+                $MD5 = $this->hex2b64(md5_file($filePath));
+                $header[] = "Content-MD5: $MD5";
+        }
+
+        $stringToSign="PUT\n$MD5\n$contentType\n$httpDate\nx-amz-acl:$acl\n";
+        foreach($metadataArray as $current){
+                if($current!=""){
+                        $stringToSign.="x-amz-meta-$currentn";
+                        $header = substr($current,0,strpos($current,':'));
+                        $meta = substr($current,strpos($current,':')+1,strlen($current));
+                        $header[] = "x-amz-meta-$header: $meta";
+                }
+        }
+
+        $stringToSign.="/$resource";
+
+        $signature = $this->constructSig($stringToSign);
+
+        $header[] = "Authorization: AWS $this->accessKeyId:$signature";
+
+        curl_setopt($curl_inst, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($curl_inst, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = curl_exec ($curl_inst);
+
+        $this->responseString = $result;
+        $this->responseCode = curl_getinfo($curl_inst, CURLINFO_HTTP_CODE);
+
+        curl_close($curl_inst);
+    }
+	*/
 	function send($resource, $args='', $method='GET') {
 		$method=strtoupper($method);
 		$httpDate = gmdate("D, d M Y G:i:s T");
