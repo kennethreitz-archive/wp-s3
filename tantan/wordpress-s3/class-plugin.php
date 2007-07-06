@@ -63,6 +63,13 @@ class TanTanWordPressS3Plugin {
             } else {
                 $message = "Saved Amazon S3 authentication information. ";
             }
+            if (function_exists('dns_get_record') && $_POST['options']['virtual-host']) {
+                $record = dns_get_record($_POST['options']['bucket']);
+                if (($record[0]['type'] != 'CNAME') || ($record[0]['target'] != 's3.amazonaws.com')) {
+                    $error = "Your DNS doesn't seem to be setup correctly for <em>".$_POST['options']['bucket']."</em>. Make sure the following entry is added to your DNS: <br /><br />".
+                        "<code>".$_POST['options']['bucket']." CNAME s3.amazonaws.com.</code><br /><br /><a href='http://docs.amazonwebservices.com/AmazonS3/2006-03-01/VirtualHosting.html'>More info &gt;</a>";
+                }
+            }
         }
         $options = get_option('tantan_wordpress_s3');
         if ($options['key'] && $options['secret']) {
