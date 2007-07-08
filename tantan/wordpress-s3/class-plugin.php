@@ -52,7 +52,7 @@ class TanTanWordPressS3Plugin {
             $_POST['options']['key'] = trim($_POST['options']['key']);
             $_POST['options']['secret'] = trim($_POST['options']['secret']);
             
-            if (ereg('not shown', $_POST['options']['secret'])) {
+            if (!$_POST['options']['secret'] || ereg('not shown', $_POST['options']['secret'])) {
                 $_POST['options']['secret'] = $options['secret'];
             }
             
