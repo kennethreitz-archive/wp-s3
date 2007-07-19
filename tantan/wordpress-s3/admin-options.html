@@ -106,27 +106,44 @@ You can check the following pages for the latest updates to this plugin, along w
 </td>
 </tr>
 <?php else:?>
-<tr valign="top">
-<th width="33%" scope="row">Use this bucket:</th> 
-<td>
-<select name="options[bucket]" size="1">
-<option value="">Please select a bucket...</option>
-<?php if (is_array($buckets)) foreach ($buckets as $bucket):?>
-    <option value="<?php echo $bucket?>" <?php echo ($bucket == $options['bucket'] ? 'selected="selected"' : '')?>>&nbsp; &nbsp; <?php echo $bucket?></option>
-<?php endforeach;?>
-</select><br />
-<input type="checkbox" name="options[virtual-host]" value="1" id="virtual-host" <?php echo ($options['virtual-host'] ? 'checked="checked" ' : '');?> /><label for="virtual-host"> Bucket is a virtually hosted domain</label> (<a href="http://docs.amazonwebservices.com/AmazonS3/2006-03-01/VirtualHosting.html">more info</a>)
-</td> 
-</tr>
+	<tr valign="top">
+	<th width="33%" scope="row">Use this bucket:</th> 
+	<td>
+	<select name="options[bucket]" size="1">
+	<option value="">Please select a bucket...</option>
+	<?php if (is_array($buckets)) foreach ($buckets as $bucket):?>
+	    <option value="<?php echo $bucket?>" <?php echo ($bucket == $options['bucket'] ? 'selected="selected"' : '')?>>&nbsp; &nbsp; <?php echo $bucket?></option>
+	<?php endforeach;?>
+	</select><br />
+	</td> 
+	</tr>
+
+	<tr valign="top">
+	<th width="33%" scope="row">Host name settings:</th> 
+	<td>
+		<input type="checkbox" name="options[virtual-host]" value="1" id="virtual-host" <?php echo ($options['virtual-host'] ? 'checked="checked" ' : '');?> />
+			<label for="virtual-host"> Bucket is setup for virtual hosting.</label> (<a href="http://docs.amazonwebservices.com/AmazonS3/2006-03-01/VirtualHosting.html">more info</a>)
+	</td> 
+	</tr>
+
+	<tr valign="top">
+	<th width="33%" scope="row">File Permissions:</th> 
+	<td>
+		<input type="checkbox" name="options[permissions]" value="public" id="permissions" <?php echo ($options['permissions']=='public' ? 'checked="checked" ' : '');?> />
+		<label for="permissions"> Make sure all files in the selected bucket are publicly accessible.</label>
+	</td> 
+	</tr>
+
 
 <tr valign="top">
 <th width="33%" scope="row">File Uploads:</th> 
 <td>
-Uploading files to your Amazon S3 account is not currently supported by this plugin. But, there are a few free tools to help you upload
+Uploading files directly to your Amazon S3 account is not currently supported by this plugin (due to a couple technical limitations). 
+But, there are a some free tools to help you upload
 and manage your files on Amazon S3. Here are some suggested tools:
 
 <ul>
-    <li><a href="http://www.rjonna.com/ext/s3fox.php">S3 Firefox Organizer</a> - Provides an user friendly FTP like interface to Amazon S3 from within Firefox. After installing, select <em>Tools &gt; S3 Organizer</em> to use it.</li>
+    <li><a href="http://www.rjonna.com/ext/s3fox.php">S3 Firefox Organizer</a> - Provides an user friendly FTP like interface to Amazon S3 from within Firefox. After installing, select <em>Tools &gt; S3 Organizer</em> to use it. <em>(recommended)</em></li>
     <li><a href="http://s3.amazonaws.com/ns3/home">NS3 Manager</a> - Lightweight Windows based front-end to Amazon S3. A little buggy, but it works.</li>
     <li><a href="http://www.suchwerk.net/sodcms_AMAZON_S3DRIVE.htm">S3Drive</a> - Windows application that lets you access the Amazon web space as a local network drive.</li>
     <li><a href="http://solutions.amazonwebservices.com/connect/kbcategory.jspa?categoryID=66">Amazon Resources Library</a> - A directory of resources that use the Amazon S3 service. This directory is managed by Amazon.</li>
@@ -137,8 +154,6 @@ and manage your files on Amazon S3. Here are some suggested tools:
 </ul>
 
 <br />
-<strong>Note:</strong> Be sure to set the permissions (ie, <abbr title="Access Control List">ACL</abbr>) for your uploaded files
-such that <em>Everyone</em> has <em>Read</em> access. 
 </td>
 </tr>
 

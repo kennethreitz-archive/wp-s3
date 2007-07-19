@@ -19,7 +19,7 @@ function stream_function($handle, $fd, $length){return fread($this->data, $lengt
 */
 
 require_once (dirname(__FILE__).'/../lib/curl.php');
-//require_once(dirname(__FILE__).'/../lib/Request.php');
+require_once(dirname(__FILE__).'/../lib/Request.php');
 
 
 /*
@@ -50,6 +50,7 @@ class TanTanS3 {
 		$this->accessKeyId=$accessKeyId;
 		$this->secretKey=$secretKey;
 		$this->req =& new TanTanCurl($this->serviceUrl);
+		//$this->req = new HTTP_Request($this->serviceUrl);
 	}
 			
 	/**
@@ -122,7 +123,67 @@ class TanTanS3 {
 			return false;
 		}
 	}
-	
+	/**
+	 * setObjectACL -- sets objects access control policy to one of Amazon S3 canned policies.
+	 *
+	 * Takes ($bucket, $key, $acl)  
+	 *
+	 * - [str] $bucket
+	 * - [str] $key
+	 * - [str] $acl -- One of canned access control policies.
+	*/   
+	function setObjectACL($bucket, $key, $acl){
+		$httpDate = gmdate("D, d M Y G:i:s T");
+		$resource = $bucket."/".urlencode($key);
+		/*
+		$signature = $this->constructSig("PUT\n\n\n$httpDate\nx-amz-acl:$acl\n/$resource?acl");
+		$this->req->setURL($this->serviceUrl.$resource.'?acl');
+		$this->req->setMethod("PUT");
+		$this->req->addHeader("Date", $httpDate);
+		$this->req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		$this->req->addHeader("x-amz-acl", $acl);
+		$this->req->sendRequest();
+		*/
+		$httpDate = gmdate("D, d M Y G:i:s T");
+		$resource = $bucket."/".urlencode($key);
+		$stringToSign = "PUT\n\n\n$httpDate\nx-amz-acl:$acl\n/$resource?acl";
+		$signature = $this->constructSig($stringToSign);
+		//$req =& new HTTP_Request($this->serviceUrl.$resource.'?acl');
+		$this->req->setURL($this->serviceUrl.$resource.'?acl');
+		$this->req->setMethod("PUT");
+		$this->req->addHeader("Date", $httpDate);
+		$this->req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		$this->req->addHeader("x-amz-acl", $acl);
+		$this->req->sendRequest();
+		if ($this->req->getResponseCode() == 200) {
+			return true;
+		} else {
+			return false;
+		}
+		
+		
+		/*
+		$httpDate = gmdate("D, d M Y G:i:s T");
+		$resource = $bucket."/".urlencode($key);
+		$stringToSign = "PUT\n\n\n$httpDate\nx-amz-acl:$acl\n/$resource?acl";
+		$signature = $this->constructSig($stringToSign);
+		$req =& new HTTP_Request($this->serviceUrl.$resource.'?acl');
+		$req->setMethod("PUT");
+		$req->addHeader("Date", $httpDate);
+		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		$req->addHeader("x-amz-acl", $acl);
+		$req->sendRequest();
+		$this->responseCode = $req->getResponseCode();
+		$this->responseString = $req->getResponseBody();
+		$this->parsed_xml = simplexml_load_string($this->responseString);
+		if ($this->responseCode == 200) {
+			return true;
+		} else {
+			return false;
+		}
+		*/
+	}
+		
 	/**
 	 * getMetadata -- Gets the metadata associated with an object.
 	 *

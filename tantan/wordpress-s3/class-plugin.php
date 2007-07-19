@@ -66,7 +66,7 @@ class TanTanWordPressS3Plugin {
             if (function_exists('dns_get_record') && $_POST['options']['virtual-host']) {
                 $record = dns_get_record($_POST['options']['bucket']);
                 if (($record[0]['type'] != 'CNAME') || ($record[0]['target'] != 's3.amazonaws.com')) {
-                    $error = "Your DNS doesn't seem to be setup correctly for <em>".$_POST['options']['bucket']."</em>. Make sure the following entry is added to your DNS: <br /><br />".
+                    $error = "Your DNS doesn't seem to be setup correctly to virtually host the domain <em>".$_POST['options']['bucket']."</em>. Make sure the following entry is added to your DNS: <br /><br />".
                         "<code>".$_POST['options']['bucket']." CNAME s3.amazonaws.com.</code><br /><br /><a href='http://docs.amazonwebservices.com/AmazonS3/2006-03-01/VirtualHosting.html'>More info &gt;</a>";
                 }
             }
@@ -197,12 +197,18 @@ class TanTanWordPressS3Plugin {
 	        if ($this->isPublic($key)) $keys[] = $key;
 	        else $privateKeys[] = $key;
 	    }
+	    if ($this->options['permissions'] == 'public') {
+			foreach ($privateKeys as $key) {
+				$this->s3->setObjectACL($this->options['bucket'], $key, 'public-read');
+				$keys[] = $key;
+			}
+		}
+
 	    natcasesort($keys);
 	    foreach ($keys as $i => $key) {
 	        $meta[$i] = $this->s3->getMetadata($this->options['bucket'], $key);
 	    }
-	    
-	    //print_r($prefixes);
+		//print_r($prefixes);
 	    //print_r($keys);
 	    //print_r($meta);
 		return array($prefixes, $keys, $meta);
