@@ -20,6 +20,7 @@ function print_keys($keys, $level=0) {
 <div id="amazon-s3-wrap">
 
 <div class="infobar">
+<form method="post" enctype="multipart/form-data">
 
 <span class="nav-controls">
 <?php if (true || $_SERVER['HTTP_REFERER']):?>
@@ -27,6 +28,7 @@ function print_keys($keys, $level=0) {
 <a href="javascript:history.forward()" onclick="" id="btn-forward" title="forward">forward</a>
 <?php endif; ?>
 <a href="javascript:window.location.reload()" onclick="" id="btn-refresh" title="refresh view">refresh</a>
+<a href="#" onclick="return s3_toggleUpload();" id="btn-upload" title="upload">upload</a>
 </span>
 <span class="path">
 <?php 
@@ -44,12 +46,18 @@ foreach ($paths as $name) if ($name) {
 ?>
 </span>
 <span class="options">
-<form>
 <input type="checkbox" name="useBittorrent" id="useBittorrent" value="1" /><label for="useBittorrent"> create links as torrents</label>
-</form>
 </span>
+
+<div id="upload-form">
+	<input type="file" name="newfile" />
+	<input type="submit" value="upload" />
+</div>
+
+</form>
 </div>
 <div class="folders">
+<form method="post">
 <ul id="prefixes">
 <?php 
 if (is_array($prefixes)) foreach ($prefixes as $prefix):
@@ -62,7 +70,17 @@ if (ereg('/', $label)) $label = substr($label, strrpos($label, '/')+1);
 <?php 
 endforeach;
 ?>
+<!--
+<li id="createFolder">
+	<a href="#" class="add" onclick="return s3_toggleCreateFolder();">create folder</a>
+	<div class="form">
+	<input type="text" name="newfolder" id="newfolder" />
+	<input type="submit" value="add" />
+	</div>
+</li>
+-->
 </ul>
+</form>
 </div>
 <div class="files">
 <ul id="keys">

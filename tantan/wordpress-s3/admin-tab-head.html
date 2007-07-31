@@ -35,7 +35,24 @@ function s3_insert(h) {
 	} else win.edInsertContent(win.edCanvas, h);
 
 	return false;
-    
+}
+function s3_toggleUpload() {
+	var div = document.getElementById('upload-form');
+    if (div.style.display == 'block') {
+		div.style.display = 'none';
+	} else {
+		div.style.display = 'block';
+	}
+	return false;
+}
+function s3_toggleCreateFolder() {
+	var div = document.getElementById('createFolder');
+	if (div.className != 'create') {
+		div.className = 'create';
+		document.getElementById('newfolder').focus();
+	} else {
+		div.className = '';
+	}
 }
 <?php
 /*

@@ -134,6 +134,31 @@ class TanTanWordPressS3Plugin {
         // javascript here to inject javascript and allow the upload from to post to amazon s3 instead
     }
     function upload_files_tantan_amazons3() {
+	/*
+	[newfile] => Array
+      (
+            [name] => anchor.png
+            [type] => image/png
+            [tmp_name] => /tmp/phpzbrxnH
+            [error] => 0
+            [size] => 523
+        )
+		*/
+		if (is_array($_FILES['newfile'])) {
+			$file = $_FILES['newfile'];
+	        if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
+	        require_once(dirname(__FILE__).'/lib.s3.php');
+	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
+
+			$this->s3->putObjectStream($this->options['bucket'], $_GET['prefix'].$file['name'], $file);
+		}
+		if ($_POST['newfolder']) {
+			if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
+	        require_once(dirname(__FILE__).'/lib.s3.php');
+	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
+
+			$this->s3->putObjectStream($this->options['bucket'], $_GET['prefix'].$_POST['newfolder'], '/dev/null');
+		}
     }
     function tab() {
         $offsetpage = (int) $_GET['paged'];

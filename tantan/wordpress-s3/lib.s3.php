@@ -34,6 +34,7 @@ class TanTanS3 {
 	var $responseCode;
 	var $parsed_xml;
 	var $req;
+	var $fp;
 			
 	/**
 	 * Constructor
@@ -216,16 +217,22 @@ class TanTanS3 {
      *
      * - [str] $bucket: the bucket into which file will be written
      * - [str] $key: key of written file
-     * - [str] $streamFunction: function to call for data to stream
+     * - [str] $fileName: path to file
      * - [str] $contentType: file content type
      * - [str] $contentLength: file content length
      * - [str] $acl: access control policy of file (OPTIONAL: defaults to 'private')
      * - [str] $metadataArray: associative array containing user-defined metadata (name=>value) (OPTIONAL)
      * - [bool] $md5: the MD5 hash of the object (OPTIONAL)
     */
-    /*
-    function putObjectStream($bucket, $key, $streamFunction, $contentType, $contentLength, $acl, $metadataArray, $md5){
+    function putObjectStream($bucket, $key, $fileInfo, $acl='public-read', $metadataArray=array(), $md5=false){
         sort($metadataArray);
+		$fileName = $fileInfo['tmp_name'];
+		$contentLength = $fileInfo['size'];
+		$contentType = $fileInfo['type'];
+		if (!file_exists($fileName)) {
+			return false;
+		}
+		$this->fp = fopen($fileName, 'r');
         $resource = "$bucket/$key";
         $resource = urlencode($resource);
         $httpDate = gmdate("D, d M Y G:i:s T");
@@ -236,7 +243,7 @@ class TanTanS3 {
         curl_setopt ($curl_inst, CURLOPT_LOW_SPEED_LIMIT, 1);
         curl_setopt ($curl_inst, CURLOPT_LOW_SPEED_TIME, 180);
         curl_setopt ($curl_inst, CURLOPT_NOSIGNAL, 1);
-        curl_setopt ($curl_inst, CURLOPT_READFUNCTION, $streamFunction);
+        curl_setopt ($curl_inst, CURLOPT_READFUNCTION, array(&$this, 'stream_function'));
         curl_setopt ($curl_inst, CURLOPT_URL, $this->serviceUrl . $resource);
         curl_setopt ($curl_inst, CURLOPT_UPLOAD, true);
         curl_setopt ($curl_inst, CURLINFO_CONTENT_LENGTH_UPLOAD, $contentLength);
@@ -278,9 +285,12 @@ class TanTanS3 {
         $this->responseString = $result;
         $this->responseCode = curl_getinfo($curl_inst, CURLINFO_HTTP_CODE);
 
+return true;
+		fclose($this->fp);
         curl_close($curl_inst);
     }
-	*/
+	function stream_function($handle, $fd, $length){return fread($this->fp, $length);}
+	
 	function send($resource, $args='', $method='GET') {
 		$method=strtoupper($method);
 		$httpDate = gmdate("D, d M Y G:i:s T");

@@ -26,26 +26,29 @@
     display:block;
     float:left;
     margin-right:10px;
-    height:16px;
-    line-height:16px;
+    height:18px;
+    line-height:18px;
     padding-left:20px;
-    background:url(arrow_left.png) no-repeat 0px 0px;
+    background:url(arrow_left.png) no-repeat left;
     border:0;
 	color:#888;
 }
+.infobar .nav-controls a#btn-upload,
 .infobar .nav-controls a#btn-forward,
 .infobar .nav-controls a#btn-refresh {
     padding-left:0px;
     padding-right:20px;
     text-indent:-10000px;
-    background:url(arrow_right.png) no-repeat top right;
+    background:url(arrow_right.png) no-repeat left;
 }
 .infobar .nav-controls a#btn-refresh {
     background-image:url(arrow_refresh.png);
 }
-
+.infobar .nav-controls a#btn-upload {
+    background-image:url(add.png);
+}
 .infobar .path {
-    margin-left:150px;
+    margin-left:175px;
 }
 .infobar .path,
 .infobar .path a{
@@ -59,6 +62,10 @@
     position:absolute;
     top:0px;
     right:10px;
+}
+.infobar #upload-form {
+	display:none;
+	padding:5px;
 }
 .folders ul {
     list-style:none;
@@ -76,13 +83,28 @@
     color:#555;
     border:0;
     text-decoration:none;
-    background:url(folder.gif) no-repeat;
+    background:url(folder.gif) no-repeat 0px -2px;
     padding:0 0 0 20px;
 }
 .folders li a:hover {
     background-color:#eee;
 }
-
+.folders li a.add {
+	background-image:url(folder_add.png);
+}
+.folders li#createFolder div.form {
+	display:none;
+}
+.folders li#createFolder.create div.form {
+	display:inline;
+}
+.folders li#createFolder.create a.add {
+	display:none;
+}
+.folders li#createFolder input {
+	font-size:9px;
+	padding:0;
+}
 .files {
     clear:both;
 }
