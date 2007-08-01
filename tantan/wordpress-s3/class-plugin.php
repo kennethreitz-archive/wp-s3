@@ -157,7 +157,8 @@ class TanTanWordPressS3Plugin {
 	        require_once(dirname(__FILE__).'/lib.s3.php');
 	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
 
-			$this->s3->putObjectStream($this->options['bucket'], $_GET['prefix'].$_POST['newfolder'], '/dev/null');
+			$this->s3->putPrefix($this->options['bucket'], $_POST['prefix'].$_POST['newfolder']);
+			//echo ($this->options['bucket']. " : ". $_POST['prefix'].$_POST['newfolder']);
 		}
     }
     function tab() {
@@ -172,7 +173,7 @@ class TanTanWordPressS3Plugin {
         
         $prefix = $_GET['prefix'] ? $_GET['prefix'] : '';
         
-        list($prefixes, $keys, $meta) = $this->getKeys($prefix);
+        list($prefixes, $keys, $meta, $privateKeys) = $this->getKeys($prefix);
         include(dirname(__FILE__).'/admin-tab.html');
     }
     
@@ -214,13 +215,22 @@ class TanTanWordPressS3Plugin {
 	    if ($this->s3->parsed_xml->CommonPrefixes) foreach ($this->s3->parsed_xml->CommonPrefixes as $content) {
 	        $prefixes[] = (string) $content->Prefix;
 	    }
-	    natcasesort($prefixes);
 
 	    if ($this->s3->parsed_xml->Contents) foreach ($this->s3->parsed_xml->Contents as $content) {
 	        $key = (string) $content->Key;
-	        
 	        if ($this->isPublic($key)) $keys[] = $key;
-	        else $privateKeys[] = $key;
+	        else {
+				if (!($p1 = ereg('^\.', $key)) && 
+					!($p2 = ereg('_\$folder\$$', $key)) &&
+					!($p3 = ereg('placeholder.ns3', $key))) {
+					$privateKeys[] = $key;
+				} elseif ($p2) {
+					$prefix = ereg_replace('(_\$folder\$$)', '/', $key);
+					if (!in_array($prefix, $prefixes)) $prefixes[] = $prefix;
+				} else {
+					
+				}
+			}
 	    }
 	    if ($this->options['permissions'] == 'public') {
 			foreach ($privateKeys as $key) {
@@ -229,14 +239,16 @@ class TanTanWordPressS3Plugin {
 			}
 		}
 
-	    natcasesort($keys);
 	    foreach ($keys as $i => $key) {
 	        $meta[$i] = $this->s3->getMetadata($this->options['bucket'], $key);
 	    }
+		natcasesort($keys);
+		natcasesort($prefixes);
 		//print_r($prefixes);
 	    //print_r($keys);
 	    //print_r($meta);
-		return array($prefixes, $keys, $meta);
+	
+		return array($prefixes, $keys, $meta, $privateKeys);
     }
     
     function isPublic($key) {

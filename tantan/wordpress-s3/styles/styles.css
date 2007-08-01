@@ -76,14 +76,14 @@
 .folders li {
     float:left;
     margin-right:10px;
-    font-size:0.9em;
+    font-size:11px;
     
 }
 .folders li a {
     color:#555;
     border:0;
     text-decoration:none;
-    background:url(folder.gif) no-repeat 0px -2px;
+    background:url(folder.gif) no-repeat 0px -3px;
     padding:0 0 0 20px;
 }
 .folders li a:hover {
@@ -127,4 +127,9 @@
 }
 .files ul li a:hover {
     background:#eee;
+}
+.files ul li.empty {
+	color:#888;
+	letter-spacing:1px;
+	font-style:italic;
 }

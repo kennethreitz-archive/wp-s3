@@ -34,7 +34,7 @@ function print_keys($keys, $level=0) {
 <?php 
 $tree = $keys;
 echo '<a href="'.add_query_arg('prefix', urlencode(''), $_SERVER['REQUEST_URI']).'" class="home">home</a> / ';
-$path = '/';
+$path = '';
 $paths = preg_split('/\//', $prefix, 100, PREG_SPLIT_NO_EMPTY);
 $numPaths = count($paths);
 $i=0;
@@ -62,7 +62,7 @@ foreach ($paths as $name) if ($name) {
 <?php 
 if (is_array($prefixes)) foreach ($prefixes as $prefix):
 $label = substr($prefix, strrpos(trim($prefix, '/'), '/')+1);
-$label = ereg_replace($path, "", '/'.$prefix);
+$label = ($path ? ereg_replace($path, "", '/'.$prefix) : $prefix);
 $label = trim($prefix, '/');
 if (ereg('/', $label)) $label = substr($label, strrpos($label, '/')+1);
 ?>
@@ -70,21 +70,20 @@ if (ereg('/', $label)) $label = substr($label, strrpos($label, '/')+1);
 <?php 
 endforeach;
 ?>
-<!--
 <li id="createFolder">
 	<a href="#" class="add" onclick="return s3_toggleCreateFolder();">create folder</a>
 	<div class="form">
+		<input type="hidden" name="prefix" value="<?php echo htmlentities($_GET['prefix']);?>">
 	<input type="text" name="newfolder" id="newfolder" />
-	<input type="submit" value="add" />
+	<input type="submit" value="create" />
 	</div>
 </li>
--->
 </ul>
 </form>
 </div>
 <div class="files">
 <ul id="keys">
-<?php if (is_array($keys)) foreach ($keys as $i => $file): 
+<?php if (count($keys)): foreach ($keys as $i => $file): 
     $file = '/'.$file;
     $url = 'http://'.$accessDomain.$file;
     $label = substr($file, strrpos($file, '/')+1);
@@ -100,6 +99,9 @@ class="file <?php echo ereg_replace('/', ' ', $meta[$i]['content-type']);?>"
 title="<?php echo $meta[$i]['date'];?> - <?php echo $meta[$i]['content-length'];?> bytes"><?php echo $label;?></a>
 </li>
 <?php endforeach;?>
+<?php else:?>
+	<li class="empty">no files in this folder</li>
+<?php endif;?>
 </ul>
 </div>
 </div>

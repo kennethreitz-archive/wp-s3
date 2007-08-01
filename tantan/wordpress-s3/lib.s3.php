@@ -290,8 +290,55 @@ return true;
         curl_close($curl_inst);
     }
 	function stream_function($handle, $fd, $length){return fread($this->fp, $length);}
+
+	function putPrefix($bucket, $prefix){
+		$ret = $this->send($bucket."/".urlencode($prefix.'_$folder$'), '', 'PUT', array('Content-Type' => '', 'Content-Length' => 0));
+		if ($ret == 200) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
-	function send($resource, $args='', $method='GET') {
+	function putObject($bucket, $key, $filePath, $contentType, $contentLength, $acl, $metadataArray, $md5){
+		sort($metadataArray);
+		$resource = $bucket."/".urlencode($key);
+		$req = & new HTTP_Request($this->serviceUrl.$resource);
+		$req->setMethod("PUT");
+		$httpDate = gmdate("D, d M Y G:i:s T");
+		$req->addHeader("Date", $httpDate);
+		$req->addHeader("Content-Type", $contentType);
+		$req->addHeader("Content-Length", $contentLength);
+		$req->addHeader("x-amz-acl", $acl);
+		if($md5){
+			$MD5 = $this->hex2b64(md5_file($filePath));
+			$req->addHeader("Content-MD5", $MD5);
+		}
+		$req->setBody(file_get_contents($filePath));
+		$stringToSign="PUT\n$MD5\n$contentType\n$httpDate\nx-amz-acl:$acl\n";
+		foreach($metadataArray as $current){
+			if($current!=""){
+				$stringToSign.="x-amz-meta-$current\n";
+				$header = substr($current,0,strpos($current,':'));
+				$meta = substr($current,strpos($current,':')+1,strlen($current));
+				$req->addHeader("x-amz-meta-$header", $meta);
+			}
+		}
+		$stringToSign.="/$resource";
+		$signature = $this->constructSig($stringToSign);    
+		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		$req->sendRequest();
+		$this->responseCode = $req->getResponseCode();
+		$this->responseString = $req->getResponseBody();
+		$this->parsed_xml = simplexml_load_string($this->responseString);
+		if ($this->responseCode == 200) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+		
+	function send($resource, $args='', $method='GET', $headers=false) {
 		$method=strtoupper($method);
 		$httpDate = gmdate("D, d M Y G:i:s T");
 		$signature = $this->constructSig("$method\n\n\n$httpDate\n/$resource");
@@ -300,6 +347,7 @@ return true;
 		$this->req->setMethod($method);
 		$this->req->addHeader("Date", $httpDate);
 		$this->req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		if (is_array($headers)) foreach ($headers as $key => $header) $this->req->addHeader($key, $header);
 		$this->req->sendRequest();
 		if ($method=='GET') {
 			$this->parsed_xml = simplexml_load_string($this->req->getResponseBody());
