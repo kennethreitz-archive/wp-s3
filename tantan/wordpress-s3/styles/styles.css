@@ -2,7 +2,7 @@
     padding:5px;
 }
 .infobar {
-    padding:0 0 4px 0;
+    padding:0 0 6px 0;
     margin:0 0 5px 0;
     font-size:0.9em;
     position:relative;
@@ -34,6 +34,7 @@
 	color:#888;
 }
 .infobar .nav-controls a#btn-upload,
+.infobar .nav-controls a#btn-folder,
 .infobar .nav-controls a#btn-forward,
 .infobar .nav-controls a#btn-refresh {
     padding-left:0px;
@@ -47,8 +48,12 @@
 .infobar .nav-controls a#btn-upload {
     background-image:url(add.png);
 }
+.infobar .nav-controls a#btn-folder {
+    background-image:url(folder_add.png);
+}
 .infobar .path {
-    margin-left:175px;
+    margin-left:195px;
+	line-height:18px;
 }
 .infobar .path,
 .infobar .path a{
@@ -63,7 +68,7 @@
     top:0px;
     right:10px;
 }
-.infobar #upload-form {
+.infobar #upload-form, .infobar #create-form {
 	display:none;
 	padding:5px;
 }

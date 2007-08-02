@@ -37,6 +37,8 @@ function s3_insert(h) {
 	return false;
 }
 function s3_toggleUpload() {
+	document.getElementById('create-form').style.display='none';
+	
 	var div = document.getElementById('upload-form');
     if (div.style.display == 'block') {
 		div.style.display = 'none';
@@ -46,6 +48,18 @@ function s3_toggleUpload() {
 	return false;
 }
 function s3_toggleCreateFolder() {
+	document.getElementById('upload-form').style.display='none';
+	
+	var div = document.getElementById('create-form');
+	if (div.style.display == 'block') {
+		div.style.display = 'none';
+	} else {
+		div.style.display = 'block';
+		document.getElementById('newfolder').focus();
+	}
+	return false;
+    
+
 	var div = document.getElementById('createFolder');
 	if (div.className != 'create') {
 		div.className = 'create';
