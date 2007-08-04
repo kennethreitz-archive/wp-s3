@@ -19,7 +19,7 @@ function stream_function($handle, $fd, $length){return fread($this->data, $lengt
 */
 
 require_once (dirname(__FILE__).'/../lib/curl.php');
-require_once(dirname(__FILE__).'/../lib/Request.php');
+//require_once(dirname(__FILE__).'/../lib/Request.php');
 
 
 /*
