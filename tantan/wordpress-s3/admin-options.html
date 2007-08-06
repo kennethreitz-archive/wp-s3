@@ -140,6 +140,15 @@ You can check the following pages for the latest updates to this plugin, along w
 	</tr>
 
 	<tr valign="top">
+	<th width="33%" scope="row">File Uploads:</th> 
+	<td>
+		<input type="checkbox" name="options[wp-uploads]" value="1" id="wp-uploads" <?php echo ($options['wp-uploads'] ? 'checked="checked" ' : '');?> />
+			<label for="wp-uploads"> Use Amazon S3 for storage when uploading via WordPress' upload tab.</label>
+			<br /><small>Note: Uncheck this to revert back to using your own web host for storage at anytime.</small>
+	</td> 
+	</tr>
+    
+	<tr valign="top">
 	<th width="33%" scope="row">File Permissions:</th> 
 	<td>
 		<input type="checkbox" name="options[permissions]" value="public" id="permissions" <?php echo ($options['permissions']=='public' ? 'checked="checked" ' : '');?> />
