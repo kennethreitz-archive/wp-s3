@@ -59,7 +59,19 @@ class TanTanWordPressS3Plugin {
             update_option('tantan_wordpress_s3', $_POST['options']);
             
             if ($_POST['options']['bucket']) {
-                $message = "Saved settings.";
+                $options = get_option('tantan_wordpress_s3');
+                require_once(dirname(__FILE__).'/lib.s3.php');
+                $s3 = new TanTanS3($options['key'], $options['secret']);
+            
+                if (!in_array($_POST['options']['bucket'], $s3->listBuckets())) {
+                    if ($s3->createBucket($_POST['options']['bucket'],'public-read')) {
+                        $message = "Saved settings and created a new bucket: ".$_POST['options']['bucket'];
+                    } else {
+                        $error = "There was an error creating the bucket ".$_POST['options']['bucket'];
+                    }
+                } else {
+                    $message = "Saved settings.";
+                }
             } else {
                 $message = "Saved Amazon S3 authentication information. ";
             }

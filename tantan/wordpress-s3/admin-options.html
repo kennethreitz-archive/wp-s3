@@ -3,8 +3,19 @@
 <?php elseif ($message):?>
 <div id="message" class="updated fade"><p><strong><?php echo $message?></strong></p></div>
 <?php endif;?>
-
-<style>
+<script type="text/javascript">
+function s3_selectBucket(obj) {
+    if (obj.options[obj.selectedIndex].value == 'new') {
+        var bucket = prompt("Bucket name: ");
+        if (bucket) {
+            var len = obj.options.length
+            obj.options[len] = new Option("New bucket: " + bucket, bucket);
+            obj.options[len].selected = true;
+        }
+    }
+}
+</script>
+<style type="text/css">
 fieldset.options {
     clear:both;
     border:1px solid #ccc;
@@ -109,11 +120,13 @@ You can check the following pages for the latest updates to this plugin, along w
 	<tr valign="top">
 	<th width="33%" scope="row">Use this bucket:</th> 
 	<td>
-	<select name="options[bucket]" size="1">
+	<select name="options[bucket]" size="1" onchange="return s3_selectBucket(this)">
 	<option value="">Please select a bucket...</option>
 	<?php if (is_array($buckets)) foreach ($buckets as $bucket):?>
 	    <option value="<?php echo $bucket?>" <?php echo ($bucket == $options['bucket'] ? 'selected="selected"' : '')?>>&nbsp; &nbsp; <?php echo $bucket?></option>
 	<?php endforeach;?>
+	<option></option>
+	<option value="new">Create a new bucket...</option>
 	</select><br />
 	</td> 
 	</tr>
@@ -138,7 +151,7 @@ You can check the following pages for the latest updates to this plugin, along w
 <tr valign="top">
 <th width="33%" scope="row">File Uploads:</th> 
 <td>
-Uploading files <em>directly</em> to your Amazon S3 account is not currently supported by this plugin (uploads must temporarily pas through your blog).
+Uploading files <em>directly</em> to your Amazon S3 account is not currently supported by this plugin (uploads must temporarily pass through your blog).
 But, there are a some free tools to help you upload and manage your files on directly on Amazon S3. Here are some suggested tools:
 
 <ul>

@@ -91,7 +91,26 @@ class TanTanS3 {
 			return false;
 		}
 	}
-	
+	function createBucket($bucket, $acl = 'private') {
+		$httpDate = gmdate("D, d M Y G:i:s T");
+		$stringToSign = "PUT\n\n\n$httpDate\nx-amz-acl:$acl\n/$bucket";
+		$signature = $this->constructSig($stringToSign);
+		//$req =& new HTTP_Request($this->serviceUrl . $bucket);
+		$this->req->setURL($this->serviceUrl . $bucket);
+		$this->req->setMethod("PUT");
+		$this->req->addHeader("Date", $httpDate);
+		$this->req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		$this->req->addHeader("x-amz-acl", $acl);
+		$this->req->sendRequest();
+		$this->responseCode=$this->req->getResponseCode();
+		$this->responseString = $this->req->getResponseBody();
+		$this->parsed_xml = simplexml_load_string($this->responseString);
+		if ($this->responseCode == 200) {
+			return true;
+		} else {
+			return false;
+		}
+	}	
 	/**
 	 * getBucketACL -- Gets bucket access control policy.
 	 *
