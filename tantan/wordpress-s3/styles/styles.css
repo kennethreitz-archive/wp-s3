@@ -1,11 +1,8 @@
 #disable_amazonS3_span {
-    position:absolute;
-    top:2px;
-    right:0px;
-    font-size:9px;
+    
 }
-form#upload-file #disable_amazonS3 input {
-    width:auto;
+form#upload-file #disable_amazonS3_span input {
+    width:auto !important;
 }
 #amazon-s3-wrap {
     padding:5px;

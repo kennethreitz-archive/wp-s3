@@ -20,8 +20,10 @@ addLoadEvent(function () {
     if (upload && upload.name == 'image') {
         var span = document.createElement('span');
         span.id = 'disable_amazonS3_span';
-        span.innerHTML = ' <input type="checkbox" name="disable_amazonS3" id="disable_amazonS3" value="1" /><label for="disable_amazonS3"> don\'t upload to amazon s3</label>';
-        upload.parentNode.appendChild(span);
+        span.innerHTML = '<label for="disable_amazonS3"> don\'t upload to amazon s3 </label><input type="checkbox" name="disable_amazonS3" id="disable_amazonS3" value="1" />';
+        var btns = document.getElementById('buttons')
+        var tds = btns.getElementsByTagName('td')
+        tds[0].appendChild(span);
     }
     <?php endif;?>
 });
