@@ -115,7 +115,7 @@ class TanTanWordPressS3Plugin {
     function wp_update_attachment_metadata($data, $postID) {
         if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
         
-        if (!$this->options['wp-uploads']) {
+        if (!$this->options['wp-uploads'] || !$this->options['bucket'] || !$this->options['secret']) {
             return $data;
         }
 	        
