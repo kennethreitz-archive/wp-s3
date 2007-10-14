@@ -1,8 +1,6 @@
 <?php
-/*
-<script type="text/javascript" src="../wp-content/plugins/tantan/wordpress-s3/js/sha1.js"></script>
-<script type="text/javascript" src="http://<?php echo $accessDomain;?>/tantan/S3Ajax.js"></script>
-*/
+$dir = dirname(__FILE__);
+$pluginRootURL = get_option('siteurl').substr($dir, strpos($dir, '/wp-content'));
 ?>
 
 <script type="text/javascript">
@@ -12,7 +10,7 @@ addLoadEvent(function () {
     for (var i=0;i<as.length;i++) {
         var pos = as[i].innerHTML.indexOf('S3');
         if (pos >= 0) {
-            as[i].innerHTML = '<span style="padding:0 20px 0 0;background:url(../wp-content/plugins/tantan/wordpress-s3/database.png) no-repeat right;">' + as[i].innerHTML + '</span>';
+            as[i].innerHTML = '<span style="padding:0 20px 0 0;background:url(<?php echo $pluginRootURL;?>/database.png) no-repeat right;">' + as[i].innerHTML + '</span>';
         }
     }
     <?php if ($this->options['wp-uploads'] && $this->options['bucket']):?>
@@ -27,115 +25,8 @@ addLoadEvent(function () {
     }
     <?php endif;?>
 });
-
-function s3_insertImage(imgURL) {
-    return s3_insert('<img src="'+imgURL+'" class="s3-img" border="0" /> ');
-}
-
-function s3_insertLink(label, url) {
-    var useBittorrent = document.getElementById('useBittorrent').checked
-    return s3_insert('<a href="'+url+(useBittorrent ? '?torrent' : '')+'" class="s3-link'+(useBittorrent ? ' torrent' : '')+'">' + label + '</a> ');
-}
-function s3_insert(h) {
-    var win = window.opener ? window.opener : window.dialogArguments;
-	if ( !win ) win = top;
-	tinyMCE = win.tinyMCE;
-	if ( typeof tinyMCE != 'undefined' && tinyMCE.getInstanceById('content') ) {
-		tinyMCE.selectedInstance.getWin().focus();
-		tinyMCE.execCommand('mceInsertContent', false, h);
-	} else win.edInsertContent(win.edCanvas, h);
-
-	return false;
-}
-function s3_toggleUpload() {
-	document.getElementById('create-form').style.display='none';
-	
-	var div = document.getElementById('upload-form');
-    if (div.style.display == 'block') {
-		div.style.display = 'none';
-	} else {
-		div.style.display = 'block';
-	}
-	return false;
-}
-function s3_toggleCreateFolder() {
-	document.getElementById('upload-form').style.display='none';
-	
-	var div = document.getElementById('create-form');
-	if (div.style.display == 'block') {
-		div.style.display = 'none';
-	} else {
-		div.style.display = 'block';
-		document.getElementById('newfolder').focus();
-	}
-	return false;
-    
-
-	var div = document.getElementById('createFolder');
-	if (div.className != 'create') {
-		div.className = 'create';
-		document.getElementById('newfolder').focus();
-	} else {
-		div.className = '';
-	}
-}
-<?php
-/*
-TanTanWPS3 = {
-    bucket: '<?php echo $this->options['bucket'];?>',
-    init: function() {
-        var _this = this;
-
-        S3Ajax.DEBUG = true;
-        S3Ajax.URL =        'http://<?php echo $accessDomain;?>';
-        S3Ajax.KEY_ID =     '<?php echo $this->options['key'];?>';
-        S3Ajax.SECRET_KEY = '<?php echo $this->options['secret'];?>';
-        
-        var params = {}
-        
-        this.list();
-        
-        //var keys = S3Ajax.listKeys(this.bucket, params, cb, err_cb)
-    },
-    list: function() {
-        var _this = this;
-        //setList('keys_list', ['Loading...','']);
-
-        var bucket = '<?php echo $this->options['bucket'];?>';
-
-        var params = {};
-        //if ($('list_prefix').value)  params['prefix']   = $('list_prefix').value;
-        //if ($('list_maxkeys').value) params['max-keys'] = $('list_maxkeys').value;
-        //if ($('list_marker').value)  params['marker']   = $('list_marker').value;
-
-        params['prefix'] = '';
-        
-        S3Ajax.listKeys(bucket, params, 
-            function(req, obj) {
-                //clearList();
-                var contents = obj.ListBucketResult.Contents;
-                for (var i=0, item; item=contents[i]; i++) {
-                    TanTanWPS3.addKey(
-                        item.LastModified + ' ' + item.Key + ' (' + item.Size + ')',
-                        item.Key
-                    );
-                }
-            },
-            function(req, obj) {
-                setList('keys_list', ["Keys list failed at "+(new Date()),'']);
-            }
-        );
-    },
-    addKey: function(label, key) {
-        new Insertion.Bottom('keys', '<li><a href="'+key+'">'+label+'</a></li>');
-    },
-    EOF: null
-}
-
-addLoadEvent(function(){ TanTanWPS3.init() });
-*/
-?>
 </script>
+<script type="text/javascript" src="<?php echo $pluginRootURL;?>/admin-tab.js"></script>
 <style type="text/css">
-@import url(../wp-content/plugins/tantan/wordpress-s3/styles/styles.css);
+@import url(<?php echo $pluginRootURL;?>/styles/styles.css);
 </style>

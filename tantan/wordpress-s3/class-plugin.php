@@ -4,8 +4,15 @@ class TanTanWordPressS3Plugin {
     var $s3;
     
     function TanTanWordPressS3Plugin() {
+		$this->options = array();
+		if (file_exists(dirname(__FILE__).'/config.php')) {
+			require_once(dirname(__FILE__).'/config.php');
+			if ($TanTanWordPressS3Config) $this->options = $TanTanWordPressS3Config;
+		} else {
+			add_action('admin_menu', array(&$this, 'settings'));
+		}
         add_action('admin_menu', array(&$this, 'addhooks'));
-        add_action('load-upload.php', array(&$this, 'addPhotosTab'));
+		if (!$this->options['hideAmazonS3UploadTab']) add_action('load-upload.php', array(&$this, 'addPhotosTab'));
         add_action('activate_tantan/wordpress-s3.php', array(&$this, 'activate'));
         if ($_GET['tantanActivate'] == 'wordpress-s3') {
             $this->showConfigNotice();
@@ -33,15 +40,15 @@ class TanTanWordPressS3Plugin {
         add_action('admin_notices', create_function('', 'echo \'<div id="message" class="updated fade"><p>Amazon S3 Plugin for WordPress <strong>activated</strong>. <a href="options-general.php?page=tantan/wordpress-s3/class-plugin.php">Configure the plugin &gt;</a></p></div>\';'));
     }
 
+	function settings() {
+		add_options_page('Amazon S3', 'Amazon S3', 10, __FILE__, array(&$this, 'admin'));
+		$this->version_check();
+	}
     function addhooks() {
-        add_options_page('Amazon S3', 'Amazon S3', 10, __FILE__, array(&$this, 'admin'));
         if (!$_POST['disable_amazonS3']) {
             add_filter('wp_update_attachment_metadata', array(&$this, 'wp_update_attachment_metadata'), 9, 2);
         }
         add_filter('wp_get_attachment_url', array(&$this, 'wp_get_attachment_url'), 9, 2);
-        //add_filter('wp_handle_upload', array(&$this, 'wp_handle_upload'));
-        
-        $this->version_check();
     }  
     function version_check() {
         global $TanTanVersionCheck;
@@ -73,7 +80,7 @@ class TanTanWordPressS3Plugin {
                     if ($s3->createBucket($_POST['options']['bucket'],'public-read')) {
                         $message = "Saved settings and created a new bucket: ".$_POST['options']['bucket'];
                     } else {
-                        $error = "There was an error creating the bucket ".$_POST['options']['bucket'];
+                        $error = "There was an error creating the bucket: ".$_POST['options']['bucket'];
                     }
                 } else {
                     $message = "Saved settings.";
@@ -119,7 +126,9 @@ class TanTanWordPressS3Plugin {
             return $data;
         }
 	        
+		add_filter('option_siteurl', array(&$this, 'upload_path'));
         $uploadDir = wp_upload_dir();
+		remove_filter('option_siteurl', array(&$this, 'upload_path'));
         $parts = parse_url($uploadDir['url']);
         
         $prefix = substr($parts['path'], 1) .'/';
@@ -169,6 +178,18 @@ class TanTanWordPressS3Plugin {
     function wp_handle_upload($info) {
         return $info;
     }
+
+	// figure out the correct path to upload to, for wordpress mu installs
+	function upload_path($path='') {
+		global $current_blog;
+		if (!$current_blog) return $path;
+        if ($current_blog->path == '/' && ($current_blog->blog_id != 1)) {
+			$dir = substr($current_blog->domain, 0, strpos($current_blog->domain, '.'));
+		} else {
+			$dir = trim($current_blog->path, '/');
+		}
+		return $path.'/'.$dir;
+	}
     function wp_get_attachment_url($url, $postID) {
         if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
         
@@ -228,23 +249,35 @@ class TanTanWordPressS3Plugin {
         // javascript here to inject javascript and allow the upload from to post to amazon s3 instead
     }
     function upload_files_tantan_amazons3() {
+		global $current_blog;
+		$restrictPrefix = ''; // restrict to a selected prefix in current bucket
+		if ($current_blog)  { // if wordpress mu
+        	$restrictPrefix = ltrim($this->upload_path(), '/').'/files/';
+		}
+	
 		if (is_array($_FILES['newfile'])) {
 			$file = $_FILES['newfile'];
 	        if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
 	        require_once(dirname(__FILE__).'/lib.s3.php');
 	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
 
-			$this->s3->putObjectStream($this->options['bucket'], $_GET['prefix'].$file['name'], $file);
+			$this->s3->putObjectStream($this->options['bucket'], $restrictPrefix.$_GET['prefix'].$file['name'], $file);
 		}
 		if ($_POST['newfolder']) {
 			if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
 	        require_once(dirname(__FILE__).'/lib.s3.php');
 	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
 
-			$this->s3->putPrefix($this->options['bucket'], $_POST['prefix'].$_POST['newfolder']);
+			$this->s3->putPrefix($this->options['bucket'], $restrictPrefix.$_POST['prefix'].$_POST['newfolder']);
 		}
     }
     function tab() {
+		global $current_blog;
+		$restrictPrefix = ''; // restrict to a selected prefix in current bucket
+		if ($current_blog)  { // if wordpress mu
+        	$restrictPrefix = ltrim($this->upload_path(), '/').'/files/';
+		}
+
         $offsetpage = (int) $_GET['paged'];
         if (!$offsetpage) $offsetpage = 1;
         
@@ -255,8 +288,12 @@ class TanTanWordPressS3Plugin {
         $accessDomain = $this->options['virtual-host'] ? $this->options['bucket'] : $this->options['bucket'].'.s3.amazonaws.com';
         
         $prefix = $_GET['prefix'] ? $_GET['prefix'] : '';
-        
-        list($prefixes, $keys, $meta, $privateKeys) = $this->getKeys($prefix);
+        list($prefixes, $keys, $meta, $privateKeys) = $this->getKeys($restrictPrefix.$prefix);
+		if ($restrictPrefix) {
+			foreach ($prefixes as $k=>$v) {
+				$prefixes[$k] = str_replace($restrictPrefix, '', $v);
+			}
+		}
         include(dirname(__FILE__).'/admin-tab.html');
     }
     
@@ -327,9 +364,6 @@ class TanTanWordPressS3Plugin {
 	    }
 		natcasesort($keys);
 		natcasesort($prefixes);
-		//print_r($prefixes);
-	    //print_r($keys);
-	    //print_r($meta);
 	
 		return array($prefixes, $keys, $meta, $privateKeys);
     }
