@@ -1,6 +1,7 @@
 
-function s3_insertImage(imgURL) {
-    return s3_insert('<img src="'+imgURL+'" class="s3-img" border="0" /> ');
+function s3_insertImage(imgURL, title) {
+	if (!title) title = '';
+    return s3_insert('<img src="'+imgURL+'" class="s3-img" border="0" alt="'+title+'" /> ');
 }
 
 function s3_insertLink(label, url) {

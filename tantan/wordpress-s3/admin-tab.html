@@ -99,7 +99,7 @@ endforeach;
 ?>
 <li><a 
 <?php if (ereg("^image/.*", $meta[$i]['content-type'])):?>
-onclick="return s3_insertImage('<?php echo $url;?>')"
+onclick="return s3_insertImage('<?php echo $url;?>', '<?php echo basename($url);?>')"
 <?php else:?>
 onclick="return s3_insertLink('<?php echo addslashes($label);?>', '<?php echo $url;?>')"
 <?php endif;?>
