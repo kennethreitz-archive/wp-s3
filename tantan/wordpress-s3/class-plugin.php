@@ -252,7 +252,7 @@ class TanTanWordPressS3Plugin {
 		global $current_blog;
 		$restrictPrefix = ''; // restrict to a selected prefix in current bucket
 		if ($current_blog)  { // if wordpress mu
-        	$restrictPrefix = ltrim($this->upload_path(), '/').'/files/';
+        	$restrictPrefix = ltrim($this->upload_path().'/files/', '/');
 		}
 	
 		if (is_array($_FILES['newfile'])) {
@@ -275,7 +275,7 @@ class TanTanWordPressS3Plugin {
 		global $current_blog;
 		$restrictPrefix = ''; // restrict to a selected prefix in current bucket
 		if ($current_blog)  { // if wordpress mu
-        	$restrictPrefix = ltrim($this->upload_path(), '/').'/files/';
+        	$restrictPrefix = ltrim($this->upload_path().'/files/', '/');
 		}
 
         $offsetpage = (int) $_GET['paged'];
