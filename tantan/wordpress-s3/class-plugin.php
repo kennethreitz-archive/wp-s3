@@ -148,6 +148,7 @@ class TanTanWordPressS3Plugin {
 			
 			require_once(dirname(__FILE__).'/lib.s3.php');
 	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
+			$this->s3->setOptions($this->options);
 
 			if ($this->s3->putObjectStream($this->options['bucket'], $prefix.$file['name'], $file)) {
 			    
@@ -260,7 +261,7 @@ class TanTanWordPressS3Plugin {
 	        if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
 	        require_once(dirname(__FILE__).'/lib.s3.php');
 	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
-
+			$this->s3->setOptions($this->options);
 			$this->s3->putObjectStream($this->options['bucket'], $restrictPrefix.$_GET['prefix'].$file['name'], $file);
 		}
 		if ($_POST['newfolder']) {

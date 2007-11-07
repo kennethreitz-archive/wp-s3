@@ -9,5 +9,6 @@ $TanTanWordPressS3Config = array(
 	'wp-uploads' => true, // mirror all WordPress uploads into Amazon S3 bucket
 	'permissions' => '', // set to "public" to have the plugin force all files in the specified bucket to "public" (sometimes third party upload utilities don't do this)
 	'hideAmazonS3UploadTab' => false, // hide the Amazon S3 tab in the WordPress upload widget
+	'expires' => 315360000, // set http expires header 10 years into the future
 	);
 ?>

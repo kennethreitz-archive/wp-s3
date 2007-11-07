@@ -150,6 +150,14 @@ You can check the following pages for the latest updates to this plugin, along w
 	</tr>
     
 	<tr valign="top">
+	<th width="33%" scope="row">Expires Header:</th> 
+	<td>
+		<input type="checkbox" name="options[expires]" value="315360000" id="expires" <?php echo ($options['expires']? 'checked="checked" ' : '');?> />
+		<label for="expires"> Set a <a href="http://developer.yahoo.com/performance/rules.html#expires" target="_blank">far future HTTP expiration header</a> for uploaded files <em>(recommended)</em>.</label>
+	</td> 
+	</tr>
+    
+	<tr valign="top">
 	<th width="33%" scope="row">File Permissions:</th> 
 	<td>
 		<input type="checkbox" name="options[permissions]" value="public" id="permissions" <?php echo ($options['permissions']=='public' ? 'checked="checked" ' : '');?> />
@@ -159,7 +167,7 @@ You can check the following pages for the latest updates to this plugin, along w
 
 
 <tr valign="top">
-<th width="33%" scope="row">File Uploads:</th> 
+<th width="33%" scope="row">&nbsp;</th> 
 <td>
 Uploading files <em>directly</em> to your Amazon S3 account is not currently supported by this plugin (uploads must temporarily pass through your blog).
 But, there are a some free tools to help you upload and manage your files on directly on Amazon S3. Here are some suggested tools:

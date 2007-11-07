@@ -44,6 +44,7 @@ class TanTanS3 {
 	var $parsed_xml;
 	var $req;
 	var $fp;
+	var $options;
 			
 	/**
 	 * Constructor
@@ -56,13 +57,21 @@ class TanTanS3 {
 	 *
 	*/
 	function TanTanS3($accessKeyId, $secretKey, $serviceUrl="http://s3.amazonaws.com/") {
+		global $wpdb;
 		$this->serviceUrl=$serviceUrl;
 		$this->accessKeyId=$accessKeyId;
 		$this->secretKey=$secretKey;
 		$this->req =& new TanTanCurl($this->serviceUrl);
+		$this->options = array();
+		$this->options['cache_table'] = $wpdb->prefix . 'tantan_wordpress_s3_cache';
 		//$this->req = new HTTP_Request($this->serviceUrl);
 	}
 			
+	function setOptions($options) {
+		if (is_array($options)) {
+			$this->options = array_merge($this->options, $options);
+		}
+	}
 	/**
 	 * listBuckets -- Lists all buckets.
 	*/
@@ -280,6 +289,9 @@ class TanTanS3 {
         $header[] = "Content-Type: $contentType";
         $header[] = "Content-Length: $contentLength";
         $header[] = "Expect: ";
+		if (is_numeric($this->options['expires'])) {
+			$header[] = "Expires: ".date('D, d M Y H:i:s O', time()+$this->options['expires']);
+		}
         $header[] = "Transfer-Encoding: ";
         $header[] = "x-amz-acl: $acl";
 
@@ -313,9 +325,9 @@ class TanTanS3 {
         $this->responseString = $result;
         $this->responseCode = curl_getinfo($curl_inst, CURLINFO_HTTP_CODE);
 
-return true;
 		fclose($this->fp);
         curl_close($curl_inst);
+		return true;
     }
 	function stream_function($handle, $fd, $length){return fread($this->fp, $length);}
 
@@ -400,7 +412,7 @@ return true;
         global $wpdb;
         if (!is_object($wpdb)) return;
         
-        $wpdb->query("CREATE TABLE IF NOT EXISTS `tantan_wordpress_s3_cache` (
+        $wpdb->query("CREATE TABLE IF NOT EXISTS `".$this->options['cache_table']."` (
                 `request` VARCHAR( 255 ) NOT NULL ,
                 `response` TEXT NOT NULL ,
                 `timestamp` DATETIME NOT NULL ,
@@ -411,16 +423,19 @@ return true;
         global $wpdb;
         if (!is_object($wpdb)) return false;
         $key = addslashes(trim($key));
-        $wpdb->query("DELETE FROM tantan_wordpress_s3_cache WHERE request = '".$key."'");
-        $sql = "INSERT INTO tantan_wordpress_s3_cache (request, response, timestamp) VALUES ('".$key."', '" . addslashes(serialize($data)) . "', '" . strftime("%Y-%m-%d %H:%M:%S") . "')";
-        $wpdb->query($sql); 
+        if ($wpdb->query("DELETE FROM ".$this->options['cache_table']." WHERE request = '".$key."'") !== false) {
+	        $sql = "INSERT INTO ".$this->options['cache_table']." (request, response, timestamp) VALUES ('".$key."', '" . addslashes(serialize($data)) . "', '" . strftime("%Y-%m-%d %H:%M:%S") . "')";
+	        $wpdb->query($sql); 
+		} else { // tables might not be setup, so just try to do that
+			$this->initCacheTables();
+		}
         return $data;
 	}
 	function getCache($key) {
         global $wpdb;
         if (!is_object($wpdb)) return false;
         $key = trim($key);
-        $result = $wpdb->get_var("SELECT response FROM tantan_wordpress_s3_cache WHERE request = '" . $key . "' LIMIT 1");
+        $result = @$wpdb->get_var("SELECT response FROM ".$this->options['cache_table']." WHERE request = '" . $key . "' LIMIT 1");
         
         if (!empty($result)) {
             return unserialize($result);
@@ -430,7 +445,7 @@ return true;
 	function clearCache() {
         global $wpdb;
         if (!is_object($wpdb)) return false;
-	    $result = $wpdb->query("DELETE FROM tantan_wordpress_s3_cache;");
+	    $result = @$wpdb->query("DELETE FROM ".$this->options['cache_table'].";");
 	}
 }
 ?>
