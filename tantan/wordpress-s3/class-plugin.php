@@ -264,13 +264,14 @@ class TanTanWordPressS3Plugin {
 		$context = __('Add media: %s');
 
 		$media_upload_iframe_src = "media-upload.php?post_id=$uploading_iframe_ID";
-		$out = '<a href="{$media_upload_iframe_src}&tab=tantan-wordpress-s3&TB_iframe=true&height=500&width=640" class="thickbox" title="{$image_title}"><img src="{$image_btn}" alt="{$image_title}" /></a>';
+		$out = '<a href="'.$media_upload_iframe_src.'&tab=tantan-wordpress-s3&TB_iframe=true&height=500&width=640" class="thickbox" title="'.$image_title.'"><img src="'.$image_btn.'" alt="'.$image_title.'" /></a>';
 		printf($context, $out);
 	}
 	function media_upload_content() {
 		if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
         require_once(dirname(__FILE__).'/lib.s3.php');
         $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
+        $this->upload_files_tantan_amazons3(); // process any uploaded files or new folders
 		wp_admin_css( 'css/global' );
 		wp_print_scripts ('media-upload');
         $this->upload_tabs_scripts();
