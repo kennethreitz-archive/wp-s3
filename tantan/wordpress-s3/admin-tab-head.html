@@ -1,6 +1,7 @@
 <?php
 $dir = dirname(__FILE__);
 $pluginRootURL = get_option('siteurl').substr($dir, strpos($dir, '/wp-content'));
+if (!ereg('media-upload.php', $_SERVER['REQUEST_URI'])): // WP < 2.5
 ?>
 
 <script type="text/javascript">
@@ -26,6 +27,7 @@ addLoadEvent(function () {
     <?php endif;?>
 });
 </script>
+<?php endif;?>
 <script type="text/javascript" src="<?php echo $pluginRootURL;?>/admin-tab.js"></script>
 <style type="text/css">
 @import url(<?php echo $pluginRootURL;?>/styles/styles.css);

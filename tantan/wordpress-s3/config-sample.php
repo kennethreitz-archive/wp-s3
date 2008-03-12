@@ -1,4 +1,10 @@
 <?php
+/*
+$Revision$
+$Date$
+$Author$
+*/
+
 // rename this file to "config.php" to use the settings below, instead of settings saved in the database through the dashboard admin
 // this can be used to automatically configure the plugin in a WordPress MU environment, or if you have automated scripts to deploy WordPress installs
 $TanTanWordPressS3Config = array(

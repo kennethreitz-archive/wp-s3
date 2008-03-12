@@ -377,6 +377,31 @@ class TanTanS3 {
 			return false;
 		}
 	}
+	function deleteObject($bucket, $key) {
+		$ret = $this->send($bucket."/".urlencode($key), '', 'DELETE');
+		if ($ret == 204) {
+			return true;
+		} else {
+			return false;
+		}
+		$httpDate = gmdate("D, d M Y G:i:s T");
+		$resource = $bucket."/".urlencode($key);
+		$stringToSign = "DELETE\n\n\n$httpDate\n/$resource";
+		$signature = $this->constructSig($stringToSign);
+		$req =& new HTTP_Request($this->serviceUrl.$resource);
+		$req->setMethod("DELETE");
+		$req->addHeader("Date", $httpDate);
+		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
+		$req->sendRequest();
+		$this->responseCode = $req->getResponseCode();
+		$this->responseString = $req->getResponseBody();
+		$this->parsed_xml = simplexml_load_string($this->responseString);
+		if ($this->responseCode == 204) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 		
 	function send($resource, $args='', $method='GET', $headers=false) {
 		$method=strtoupper($method);
