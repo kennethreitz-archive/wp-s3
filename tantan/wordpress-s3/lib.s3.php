@@ -79,10 +79,11 @@ class TanTanS3 {
 		$ret = $this->send('');
 		if($ret == 200){ 
 		    $return = array();
-		    foreach ($this->parsed_xml->Buckets->Bucket as $bucket) {
-		        $return[] = (string) $bucket->Name;
-		        
-		    }
+			if(count($this->parsed_xml->Buckets->Bucket) > 0){
+			    foreach ($this->parsed_xml->Buckets->Bucket as $bucket) {
+			        $return[] = (string) $bucket->Name;
+			    }
+			}
 		    return $return;
 			
 		}
