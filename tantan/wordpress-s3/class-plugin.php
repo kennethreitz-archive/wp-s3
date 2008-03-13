@@ -268,10 +268,15 @@ class TanTanWordPressS3Plugin {
 		printf($context, $out);
 	}
 	function media_upload_content() {
-		if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
-        require_once(dirname(__FILE__).'/lib.s3.php');
-        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
         $this->upload_files_tantan_amazons3(); // process any uploaded files or new folders
+            
+		if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
+		//if (!is_object($this->s3)) {
+	        require_once(dirname(__FILE__).'/lib.s3.php');
+	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
+	        $this->s3->setOptions($this->options);
+        //}
+        
         add_action('admin_print_scripts', array(&$this, 'upload_tabs_scripts'));
 		wp_iframe(array(&$this, 'tab'));
 	}
