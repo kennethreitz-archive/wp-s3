@@ -9,8 +9,8 @@ function s3_insertLink(label, url) {
     return s3_insert('<a href="'+url+(useBittorrent ? '?torrent' : '')+'" class="s3-link'+(useBittorrent ? ' torrent' : '')+'">' + label + '</a> ');
 }
 function s3_insert(h) {
-	if (typeof send_to_editor == 'function') {
-		send_to_editor(h);
+	if (typeof top.send_to_editor == 'function') {
+		top.send_to_editor(h);
 		if (typeof top.tb_remove == 'function') 
 			top.tb_remove();
 		return false;
