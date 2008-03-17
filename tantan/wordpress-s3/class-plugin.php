@@ -22,8 +22,7 @@ class TanTanWordPressS3Plugin {
 			add_action('load-upload.php', array(&$this, 'addPhotosTab')); // WP < 2.5
 			
 			// WP >= 2.5
-			add_action('media_buttons', array(&$this, 'media_buttons')); 
-			add_filter('media_buttons_context', create_function('$a', "return '%s';"));
+			add_action('media_buttons_context', array(&$this, 'media_buttons')); 
 			add_action('media_upload_tantan-wordpress-s3', array(&$this, 'media_upload_content'));
 		}
         add_action('activate_tantan/wordpress-s3.php', array(&$this, 'activate'));
@@ -263,7 +262,7 @@ class TanTanWordPressS3Plugin {
         //return 'http://blah.com/test/thefilename.jpg';
     }
 
-	function media_buttons() {
+	function media_buttons($context) {
 		global $post_ID, $temp_ID;
 		$dir = dirname(__FILE__);
 		$pluginRootURL = get_option('siteurl').substr($dir, strpos($dir, '/wp-content'));
@@ -271,11 +270,10 @@ class TanTanWordPressS3Plugin {
 		$image_title = 'Amazon S3';
 		
 		$uploading_iframe_ID = (int) (0 == $post_ID ? $temp_ID : $post_ID);
-		$context = __('Add media: %s');
 
 		$media_upload_iframe_src = "media-upload.php?post_id=$uploading_iframe_ID";
-		$out = '<a href="'.$media_upload_iframe_src.'&tab=tantan-wordpress-s3&TB_iframe=true&height=500&width=640" class="thickbox" title="'.$image_title.'"><img src="'.$image_btn.'" alt="'.$image_title.'" /></a>';
-		printf($context, $out);
+		$out = ' <a href="'.$media_upload_iframe_src.'&tab=tantan-wordpress-s3&TB_iframe=true&height=500&width=640" class="thickbox" title="'.$image_title.'"><img src="'.$image_btn.'" alt="'.$image_title.'" /></a>';
+		return $context.$out;
 	}
 	function media_upload_content() {
         $this->upload_files_tantan_amazons3(); // process any uploaded files or new folders
