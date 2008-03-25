@@ -76,7 +76,7 @@ class TanTanS3 {
 	 * listBuckets -- Lists all buckets.
 	*/
 	function listBuckets() {
-		$ret = $this->send('');
+		$ret = $this->send('', '');
 		if($ret == 200){ 
 		    $return = array();
 			if(count($this->parsed_xml->Buckets->Bucket) > 0){
@@ -103,7 +103,7 @@ class TanTanS3 {
 	 * - [str] $maxKeys: number of keys to be returned (OPTIONAL: defaults to 1000 - maximum allowed by service)
 	*/
 	function listKeys($bucket, $marker=FALSE, $prefix=FALSE, $delimiter=FALSE, $maxKeys='1000') {
-		$ret = $this->send($bucket, "max-keys={$maxKeys}&marker={$marker}&prefix={$prefix}&delimiter={$delimiter}");
+		$ret = $this->send($bucket, '/', "max-keys={$maxKeys}&marker={$marker}&prefix={$prefix}&delimiter={$delimiter}");
 		if($ret == 200){
 		    return true;
 		} else {
@@ -138,7 +138,7 @@ class TanTanS3 {
 	 * - [str] $bucket: the bucket whose acl you want
 	*/	 
 	function getBucketACL($bucket){
-		$ret = $this->send($bucket.'/?acl');
+		$ret = $this->send($bucket, '/?acl');
 		if ($ret == 200) {
 			return true;
 		} else {
@@ -155,7 +155,7 @@ class TanTanS3 {
 	 * - [str] $key
 	*/   
 	function getObjectACL($bucket, $key){
-		$ret = $this->send($bucket."/".urlencode($key).'?acl');
+		$ret = $this->send($bucket, "/".urlencode($key).'?acl');
 		if ($ret == 200) {
 			return true;
 		} else {
@@ -172,23 +172,14 @@ class TanTanS3 {
 	 * - [str] $acl -- One of canned access control policies.
 	*/   
 	function setObjectACL($bucket, $key, $acl){
+		$serviceUrl = 'http://'.$bucket.'.s3.amazonaws.com/';
+		
 		$httpDate = gmdate("D, d M Y G:i:s T");
-		$resource = $bucket."/".urlencode($key);
-		/*
-		$signature = $this->constructSig("PUT\n\n\n$httpDate\nx-amz-acl:$acl\n/$resource?acl");
-		$this->req->setURL($this->serviceUrl.$resource.'?acl');
-		$this->req->setMethod("PUT");
-		$this->req->addHeader("Date", $httpDate);
-		$this->req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$this->req->addHeader("x-amz-acl", $acl);
-		$this->req->sendRequest();
-		*/
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$resource = $bucket."/".urlencode($key);
-		$stringToSign = "PUT\n\n\n$httpDate\nx-amz-acl:$acl\n/$resource?acl";
+		$resource = urlencode($key);
+		$stringToSign = "PUT\n\n\n$httpDate\nx-amz-acl:$acl\n/$bucket/$resource?acl";
 		$signature = $this->constructSig($stringToSign);
 		//$req =& new HTTP_Request($this->serviceUrl.$resource.'?acl');
-		$this->req->setURL($this->serviceUrl.$resource.'?acl');
+		$this->req->setURL($serviceUrl.$resource.'?acl');
 		$this->req->setMethod("PUT");
 		$this->req->addHeader("Date", $httpDate);
 		$this->req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
@@ -199,28 +190,6 @@ class TanTanS3 {
 		} else {
 			return false;
 		}
-		
-		
-		/*
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$resource = $bucket."/".urlencode($key);
-		$stringToSign = "PUT\n\n\n$httpDate\nx-amz-acl:$acl\n/$resource?acl";
-		$signature = $this->constructSig($stringToSign);
-		$req =& new HTTP_Request($this->serviceUrl.$resource.'?acl');
-		$req->setMethod("PUT");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->addHeader("x-amz-acl", $acl);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();
-		$this->parsed_xml = simplexml_load_string($this->responseString);
-		if ($this->responseCode == 200) {
-			return true;
-		} else {
-			return false;
-		}
-		*/
 	}
 		
 	/**
@@ -235,7 +204,7 @@ class TanTanS3 {
 	    if ($data = $this->getCache($bucket."/".$key)) {
 	        return $data;
 	    }
-		$ret = $this->send($bucket."/".urlencode($key), '', 'HEAD');
+		$ret = $this->send($bucket, "/".urlencode($key), '', 'HEAD');
 		if ($ret == 200) {
 			$data = $this->req->getResponseHeader();
 			foreach ($data as $k => $d) $data[strtolower($k)] = trim($d);
@@ -263,6 +232,8 @@ class TanTanS3 {
      * - [bool] $md5: the MD5 hash of the object (OPTIONAL)
     */
     function putObjectStream($bucket, $key, $fileInfo, $acl='public-read', $metadataArray=array(), $md5=false){
+		$serviceUrl = 'http://'.$bucket.'.s3.amazonaws.com/';
+
         sort($metadataArray);
 		$fileName = $fileInfo['tmp_name'];
 		$contentLength = $fileInfo['size'];
@@ -271,8 +242,7 @@ class TanTanS3 {
 			return false;
 		}
 		$this->fp = fopen($fileName, 'r');
-        $resource = "$bucket/$key";
-        $resource = urlencode($resource);
+        $resource = urlencode($key);
         $httpDate = gmdate("D, d M Y G:i:s T");
 
         $curl_inst = curl_init();
@@ -282,7 +252,7 @@ class TanTanS3 {
         curl_setopt ($curl_inst, CURLOPT_LOW_SPEED_TIME, 180);
         curl_setopt ($curl_inst, CURLOPT_NOSIGNAL, 1);
         curl_setopt ($curl_inst, CURLOPT_READFUNCTION, array(&$this, 'stream_function'));
-        curl_setopt ($curl_inst, CURLOPT_URL, $this->serviceUrl . $resource);
+        curl_setopt ($curl_inst, CURLOPT_URL, $serviceUrl . $resource);
         curl_setopt ($curl_inst, CURLOPT_UPLOAD, true);
         curl_setopt ($curl_inst, CURLINFO_CONTENT_LENGTH_UPLOAD, $contentLength);
 
@@ -312,7 +282,7 @@ class TanTanS3 {
                 }
         }
 
-        $stringToSign.="/$resource";
+        $stringToSign.="/$bucket/$resource";
 
         $signature = $this->constructSig($stringToSign);
 
@@ -333,7 +303,7 @@ class TanTanS3 {
 	function stream_function($handle, $fd, $length){return fread($this->fp, $length);}
 
 	function putPrefix($bucket, $prefix){
-		$ret = $this->send($bucket."/".urlencode($prefix.'_$folder$'), '', 'PUT', array('Content-Type' => '', 'Content-Length' => 0));
+		$ret = $this->send($bucket, "/".urlencode($prefix.'_$folder$'), '', 'PUT', array('Content-Type' => '', 'Content-Length' => 0));
 		if ($ret == 200) {
 			return true;
 		} else {
@@ -341,75 +311,27 @@ class TanTanS3 {
 		}
 	}
 	
-	function putObject($bucket, $key, $filePath, $contentType, $contentLength, $acl, $metadataArray, $md5){
-		sort($metadataArray);
-		$resource = $bucket."/".urlencode($key);
-		$req = & new HTTP_Request($this->serviceUrl.$resource);
-		$req->setMethod("PUT");
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Content-Type", $contentType);
-		$req->addHeader("Content-Length", $contentLength);
-		$req->addHeader("x-amz-acl", $acl);
-		if($md5){
-			$MD5 = $this->hex2b64(md5_file($filePath));
-			$req->addHeader("Content-MD5", $MD5);
-		}
-		$req->setBody(file_get_contents($filePath));
-		$stringToSign="PUT\n$MD5\n$contentType\n$httpDate\nx-amz-acl:$acl\n";
-		foreach($metadataArray as $current){
-			if($current!=""){
-				$stringToSign.="x-amz-meta-$current\n";
-				$header = substr($current,0,strpos($current,':'));
-				$meta = substr($current,strpos($current,':')+1,strlen($current));
-				$req->addHeader("x-amz-meta-$header", $meta);
-			}
-		}
-		$stringToSign.="/$resource";
-		$signature = $this->constructSig($stringToSign);    
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();
-		$this->parsed_xml = simplexml_load_string($this->responseString);
-		if ($this->responseCode == 200) {
-			return true;
-		} else {
-			return false;
-		}
-	}
 	function deleteObject($bucket, $key) {
-		$ret = $this->send($bucket."/".urlencode($key), '', 'DELETE');
+		$ret = $this->send($bucket, "/".urlencode($key), '', 'DELETE');
 		if ($ret == 204) {
 			return true;
 		} else {
 			return false;
 		}
-		$httpDate = gmdate("D, d M Y G:i:s T");
-		$resource = $bucket."/".urlencode($key);
-		$stringToSign = "DELETE\n\n\n$httpDate\n/$resource";
-		$signature = $this->constructSig($stringToSign);
-		$req =& new HTTP_Request($this->serviceUrl.$resource);
-		$req->setMethod("DELETE");
-		$req->addHeader("Date", $httpDate);
-		$req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
-		$req->sendRequest();
-		$this->responseCode = $req->getResponseCode();
-		$this->responseString = $req->getResponseBody();
-		$this->parsed_xml = simplexml_load_string($this->responseString);
-		if ($this->responseCode == 204) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 		
-	function send($resource, $args='', $method='GET', $headers=false) {
+	function send($bucket, $resource, $args='', $method='GET', $headers=false) {
+		if ($bucket != '') {
+			$serviceUrl = 'http://'.$bucket.'.s3.amazonaws.com';
+		} else {
+			$serviceUrl = 'http://s3.amazonaws.com/';
+		}
+
 		$method=strtoupper($method);
 		$httpDate = gmdate("D, d M Y G:i:s T");
-		$signature = $this->constructSig("$method\n\n\n$httpDate\n/$resource");
+		$signature = $this->constructSig("$method\n\n\n$httpDate\n/".($bucket ? ($bucket.$resource) : $resource));
 		
-		$this->req->setURL($this->serviceUrl.$resource.($args ? '?'.$args : ''));
+		$this->req->setURL($serviceUrl.$resource.($args ? '?'.$args : ''));
 		$this->req->setMethod($method);
 		$this->req->addHeader("Date", $httpDate);
 		$this->req->addHeader("Authorization", "AWS " . $this->accessKeyId . ":" . $signature);
@@ -418,6 +340,7 @@ class TanTanS3 {
 		if ($method=='GET') {
 			$this->parsed_xml = simplexml_load_string($this->req->getResponseBody());
 		}
+
 		return $this->req->getResponseCode();
 	}
 	function hex2b64($str) {
