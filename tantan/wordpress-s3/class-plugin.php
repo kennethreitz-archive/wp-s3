@@ -244,9 +244,18 @@ class TanTanWordPressS3Plugin {
         if ($current_blog->path == '/' && ($current_blog->blog_id != 1)) {
 			$dir = substr($current_blog->domain, 0, strpos($current_blog->domain, '.'));
 		} else {
-			$dir = trim($current_blog->path, '/');
+		    // prepend a directory onto the path for vhosted blogs
+		    if (constant("VHOST") != 'yes') {
+		        $dir = '';
+		    } else {
+		        $dir = $current_blog->path;
+		    }
 		}
-		return $path.'/'.$dir;
+		//echo trim($path.'/'.$dir, '/');
+		if ($path == '') {
+		    $path = $current_blog->path;
+		}
+		return trim($path.'/'.$dir, '/');
 	}
     function wp_get_attachment_url($url, $postID) {
         if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
