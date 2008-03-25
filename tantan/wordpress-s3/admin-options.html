@@ -68,23 +68,27 @@ If you find this plugin helpful, please consider donating a few dollars to suppo
 <br /><br />
 
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_donations">
-<input type="hidden" name="business" value="joetan54@gmail.com">
-<input type="hidden" name="item_name" value="TanTanNoodles Plugin Donation">
-<input type="hidden" name="item_number" value="WordPress S3">
-<input type="hidden" name="page_style" value="Primary">
+<input type="hidden" name="cmd" value="_donations" />
+<input type="hidden" name="business" value="joetan54@gmail.com" />
+<input type="hidden" name="item_name" value="TanTanNoodles Plugin Donation" />
+<input type="hidden" name="item_number" value="WordPress S3" />
+<input type="hidden" name="page_style" value="Primary" />
 
-<input type="hidden" name="no_shipping" value="1">
-<input type="hidden" name="return" value="http://tantannoodles.com/donation-thankyou/">
-<input type="hidden" name="cancel_return" value="http://tantannoodles.com/">
-<input type="hidden" name="currency_code" value="USD">
-<input type="hidden" name="tax" value="0">
-<input type="hidden" name="cn" value="Message / Note">
-<input type="hidden" name="lc" value="US">
-<input type="hidden" name="bn" value="PP-DonationsBF">
-Amount: $<input type="text" name="amount" value="" style="width:50px;"> <br />
-<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
-<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+<input type="hidden" name="no_shipping" value="1" />
+<input type="hidden" name="return" value="http://tantannoodles.com/donation-thankyou/" />
+<input type="hidden" name="cancel_return" value="http://tantannoodles.com/" />
+<input type="hidden" name="currency_code" value="USD" />
+<input type="hidden" name="tax" value="0" />
+<input type="hidden" name="cn" value="Message / Note" />
+<input type="hidden" name="lc" value="US" />
+<input type="hidden" name="bn" value="PP-DonationsBF" />
+<div style="float:left;width:150px;padding-top:10px">
+Amount: $<input type="text" name="amount" value="" style="width:50px;" /> <br />
+</div>
+<div style="float:right;width:100px">
+<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!" />
+</div>
+<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" style="clear:both;" />
 </form>
 
 </div>
@@ -185,20 +189,7 @@ You can check the following pages for the latest updates to this plugin, along w
 <th width="33%" scope="row">&nbsp;</th> 
 <td>
 Uploading files <em>directly</em> to your Amazon S3 account is not currently supported by this plugin (uploads must temporarily pass through your blog).
-But, there are a some free tools to help you upload and manage your files on directly on Amazon S3. Here are some suggested tools:
-
-<ul>
-    <li><a href="http://www.rjonna.com/ext/s3fox.php">S3 Firefox Organizer</a> - Provides an user friendly FTP like interface to Amazon S3 from within Firefox. After installing, select <em>Tools &gt; S3 Organizer</em> to use it. <em>(recommended)</em></li>
-    <li><a href="http://s3.amazonaws.com/ns3/home">NS3 Manager</a> - Lightweight Windows based front-end to Amazon S3. A little buggy, but it works.</li>
-    <li><a href="http://www.suchwerk.net/sodcms_AMAZON_S3DRIVE.htm">S3Drive</a> - Windows application that lets you access the Amazon web space as a local network drive.</li>
-    <li><a href="http://solutions.amazonwebservices.com/connect/kbcategory.jspa?categoryID=66">Amazon Resources Library</a> - A directory of resources that use the Amazon S3 service. This directory is managed by Amazon.</li>
-    <!--
-    <li><a href="http://www.jungledisk.com">JungleDisk</a> - Cross platform utility that creates a network drive on your computer to help you manage your Amazon S3 account.</li>
-    <li><a href="http://www.maluke.com/s3man/">S3Backup</a> - Cross platform utility, primarily used for online backups.</li>
-    -->
-</ul>
-
-<br />
+But, there are a some free tools to help you upload and manage your files on directly on Amazon S3. <a href="http://code.google.com/p/wordpress-s3/wiki/S3Tools">See this page for some suggested tools</a>.
 </td>
 </tr>
 

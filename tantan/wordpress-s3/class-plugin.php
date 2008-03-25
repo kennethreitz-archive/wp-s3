@@ -144,8 +144,7 @@ class TanTanWordPressS3Plugin {
         if (!$this->options['wp-uploads'] || !$this->options['bucket'] || !$this->options['secret']) {
             return $file;
         }
-//print_r($file);
-//print_r($this->meta);
+
 		if (is_array($this->meta)) {
 			require_once(dirname(__FILE__).'/lib.s3.php');
 	        $this->s3 = new TanTanS3($this->options['key'], $this->options['secret']);
