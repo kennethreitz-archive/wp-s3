@@ -4,10 +4,10 @@ Plugin Name: Amazon S3 for WordPress
 Plugin URI: http://tantannoodles.com/toolkit/wordpress-s3/
 Description: Allows you to retrieves objects stored in Amazon S3 and post them in WordPress.
 Author: Joe Tan
-Version: 0.3.2
+Version: 0.3.3
 Author URI: http://tantannoodles.com/
 
-Copyright (C) 2007 Joe Tan
+Copyright (C) 2008 Joe Tan
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -56,5 +56,8 @@ if (strpos($_SERVER['REQUEST_URI'], '/wp-admin/') >= 0) { // just load in admin
         }
         $error = new TanTanWordPressS3Error();
     }
+} else {
+    require_once(dirname(__FILE__).'/wordpress-s3/class-plugin-public.php');
+    $TanTanWordPressS3Plugin = new TanTanWordPressS3PluginPublic();
 }
 ?>

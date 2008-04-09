@@ -4,21 +4,15 @@ $Revision$
 $Date$
 $Author$
 */
-class TanTanWordPressS3Plugin {
-    var $options;
-    var $s3;
-	var $meta;
+require_once(dirname(__FILE__).'/class-plugin-public.php');
+class TanTanWordPressS3Plugin extends TanTanWordPressS3PluginPublic {
     
     function TanTanWordPressS3Plugin() {
-		$this->options = array();
-		if (file_exists(dirname(__FILE__).'/config.php')) {
-			require_once(dirname(__FILE__).'/config.php');
-			if ($TanTanWordPressS3Config) $this->options = $TanTanWordPressS3Config;
-		} else {
+		parent::TanTanWordPressS3PluginPublic();
+		if (!file_exists(dirname(__FILE__).'/config.php')) {
 			add_action('admin_menu', array(&$this, 'settings'));
 		}
-        add_action('admin_menu', array(&$this, 'addhooks'));
-		if (!$this->options['hideAmazonS3UploadTab']) {
+        if (!$this->options['hideAmazonS3UploadTab']) {
 			add_action('load-upload.php', array(&$this, 'addPhotosTab')); // WP < 2.5
 			
 			// WP >= 2.5
@@ -57,13 +51,13 @@ class TanTanWordPressS3Plugin {
 		$this->version_check();
 	}
     function addhooks() {
+		parent::addhooks();
         if (!$_POST['disable_amazonS3']) {
             add_filter('wp_update_attachment_metadata', array(&$this, 'wp_update_attachment_metadata'), 9, 2);
 			//can't delete mirrored files just yet
 			//add_filter('wp_get_attachment_metadata', array(&$this, 'wp_get_attachment_metadata'));
 			//add_filter('wp_delete_file', array(&$this, 'wp_delete_file'));
         }
-        add_filter('wp_get_attachment_url', array(&$this, 'wp_get_attachment_url'), 9, 2);
     }  
     function version_check() {
         global $TanTanVersionCheck;
@@ -106,10 +100,13 @@ class TanTanWordPressS3Plugin {
             if (function_exists('dns_get_record') && $_POST['options']['virtual-host']) {
                 $record = dns_get_record($_POST['options']['bucket']);
                 if (($record[0]['type'] != 'CNAME') || ($record[0]['target'] != $_POST['options']['bucket'].'s3.amazonaws.com')) {
-                    $error = "Your DNS doesn't seem to be setup correctly to virtually host the domain <em>".$_POST['options']['bucket']."</em>. ".
-						"Make sure the following entry is added to your DNS: <br /><br />".
-                        "<code>".$_POST['options']['bucket']." CNAME ".$_POST['options']['bucket'].".s3.amazonaws.com.</code><br /><br />".
-						"<a href='http://docs.amazonwebservices.com/AmazonS3/2006-03-01/VirtualHosting.html'>More info &gt;</a>";
+                    $error = "Warning: Your DNS doesn't seem to be setup correctly to virtually host the domain <em>".$_POST['options']['bucket']."</em>. ".
+						"Double check and make sure the following entry is added to your DNS. ".
+						"<a href='http://docs.amazonwebservices.com/AmazonS3/2006-03-01/VirtualHosting.html'>More info &gt;</a>".
+						"<br /><br />".
+                        "<code>".$_POST['options']['bucket']." CNAME ".$_POST['options']['bucket'].".s3.amazonaws.com.</code>".
+						"<br /><br />".
+						"<small>You can ignore this message if you're sure everything is setup correctly.</small>";
                 }
             }
         }
@@ -257,19 +254,6 @@ class TanTanWordPressS3Plugin {
 		}
 		return trim($path.'/'.$dir, '/');
 	}
-    function wp_get_attachment_url($url, $postID) {
-        if (!$this->options) $this->options = get_option('tantan_wordpress_s3');
-        
-        if ($this->options['wp-uploads'] && ($amazon = get_post_meta($postID, 'amazonS3_info', true))) {
-            $accessDomain = $this->options['virtual-host'] ? $amazon['bucket'] : $amazon['bucket'].'.s3.amazonaws.com';
-            return 'http://'.$accessDomain.'/'.$amazon['key'];
-            //return $url;
-        } else {
-            return $url;
-        }
-        //return 'http://blah.com/test/thefilename.jpg';
-    }
-
 	function media_buttons($context) {
 		global $post_ID, $temp_ID;
 		$dir = dirname(__FILE__);
