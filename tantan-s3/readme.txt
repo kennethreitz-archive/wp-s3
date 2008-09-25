@@ -24,3 +24,7 @@ Once setup, this plugin transparently integrates with your WordPress blog. File 
 ## Documentation
 If you need more help installing and configuring the plugin, [see here for more information](http://code.google.com/p/wordpress-s3/wiki/Documentation). 
 
+== Screenshots ==
+
+1. The settings screen for the plugin
+2. Browse files in a Amazon S3 bucket
