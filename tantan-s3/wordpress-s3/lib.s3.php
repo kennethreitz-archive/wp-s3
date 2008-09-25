@@ -17,10 +17,7 @@ var $data;
 function stream_function($handle, $fd, $length){return fread($this->data, $length);}
 }
 */
-
-require_once (dirname(__FILE__).'/../lib/curl.php');
-//require_once(dirname(__FILE__).'/../lib/Request.php');
-
+if (!class_exists('TanTanHTTPRequestCurl')) require_once (dirname(__FILE__).'/../lib/curl.php');
 
 /*
     based on code provided by Amazon
@@ -61,7 +58,7 @@ class TanTanS3 {
 		$this->serviceUrl=$serviceUrl;
 		$this->accessKeyId=$accessKeyId;
 		$this->secretKey=$secretKey;
-		$this->req =& new TanTanCurl($this->serviceUrl);
+		$this->req =& new TanTanHTTPRequestCurl($this->serviceUrl);
 		$this->options = array();
 		$this->options['cache_table'] = $wpdb->prefix . 'tantan_wordpress_s3_cache';
 		//$this->req = new HTTP_Request($this->serviceUrl);
