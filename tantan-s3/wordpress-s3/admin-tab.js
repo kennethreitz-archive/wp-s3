@@ -9,14 +9,14 @@ function s3_insertLink(label, url) {
     return s3_insert('<a href="'+url+(useBittorrent ? '?torrent' : '')+'" class="s3-link'+(useBittorrent ? ' torrent' : '')+'">' + label + '</a> ');
 }
 function s3_insert(h) {
-	if (typeof top.send_to_editor == 'function') {
-		top.send_to_editor(h);
-		if (typeof top.tb_remove == 'function') 
-			top.tb_remove();
+    var win = window.dialogArguments || opener || parent || top;
+	
+	if (typeof win.send_to_editor == 'function') {
+		win.send_to_editor(h);
+		if (typeof win.tb_remove == 'function') 
+			win.tb_remove();
 		return false;
 	}
-    var win = window.opener ? window.opener : window.dialogArguments;
-	if ( !win ) win = top;
 	tinyMCE = win.tinyMCE;
 	if ( typeof tinyMCE != 'undefined' && tinyMCE.getInstanceById('content') ) {
 		tinyMCE.selectedInstance.getWin().focus();
