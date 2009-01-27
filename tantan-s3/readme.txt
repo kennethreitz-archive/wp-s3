@@ -2,7 +2,7 @@
 Contributors: joetan
 Tags: uploads, amazon, s3, mirror, admin, media
 Requires at least: 2.3
-Tested up to: 2.6
+Tested up to: 2.7
 Stable tag: 0.3.4
 
 Allows you to mirror your WordPress media uploads over to Amazon S3 for storage and delivery.
