@@ -177,10 +177,9 @@ class TanTanWordPressS3Plugin extends TanTanWordPressS3PluginPublic {
         
         $prefix = substr($parts['path'], 1) .'/';
         $type = get_post_mime_type($postID);
-        if (!$data['file']) {
-            $data['file'] = get_post_meta($postID, '_wp_attached_file', true); 
-        }
-        
+
+       	$data['file'] = get_attached_file($postID, true);
+
 		if (file_exists($data['file'])) {
 			$file = array(
                 'name' => basename($data['file']),
